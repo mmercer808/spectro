@@ -107,43 +107,48 @@ class TitleBar(Widget):
             return
 
         rect = self._layout.rect
+        local_rect = Rect(0, 0, rect.w, rect.h)
         style = self.style
 
-        # Draw background
-        if style.background:
-            ctx.draw_rect(rect, style.background)
+        ctx.push_offset(rect.x, rect.y)
+        try:
+            # Draw background
+            if style.background:
+                ctx.draw_rect(local_rect, style.background)
 
-        # Draw title text
-        content = self._layout.content_rect
-        ctx.draw_text_in_rect(
-            self._title,
-            content,
-            style.font_color,
-            font_size=style.font_size,
-            align="left",
-            valign="center",
-        )
-
-        # Draw close button
-        if self._closable:
-            btn_size = 16
-            btn_x = rect.right - btn_size - style.padding.right
-            btn_y = rect.y + (rect.h - btn_size) / 2
-            btn_rect = Rect(btn_x, btn_y, btn_size, btn_size)
-
-            # Simple X icon
-            ctx.draw_line(
-                btn_x + 4, btn_y + 4,
-                btn_x + btn_size - 4, btn_y + btn_size - 4,
-                (0.7, 0.7, 0.7, 1.0),
-                width=2,
+            # Draw title text
+            content = self._layout.content_rect
+            ctx.draw_text_in_rect(
+                self._title,
+                content,
+                style.font_color,
+                font_size=style.font_size,
+                align="left",
+                valign="center",
             )
-            ctx.draw_line(
-                btn_x + btn_size - 4, btn_y + 4,
-                btn_x + 4, btn_y + btn_size - 4,
-                (0.7, 0.7, 0.7, 1.0),
-                width=2,
-            )
+
+            # Draw close button
+            if self._closable:
+                btn_size = 16
+                btn_x = local_rect.right - btn_size - style.padding.right
+                btn_y = local_rect.y + (local_rect.h - btn_size) / 2
+                btn_rect = Rect(btn_x, btn_y, btn_size, btn_size)
+
+                # Simple X icon
+                ctx.draw_line(
+                    btn_x + 4, btn_y + 4,
+                    btn_x + btn_size - 4, btn_y + btn_size - 4,
+                    (0.7, 0.7, 0.7, 1.0),
+                    width=2,
+                )
+                ctx.draw_line(
+                    btn_x + btn_size - 4, btn_y + 4,
+                    btn_x + 4, btn_y + btn_size - 4,
+                    (0.7, 0.7, 0.7, 1.0),
+                    width=2,
+                )
+        finally:
+            ctx.pop_offset()
 
 
 class Panel(Widget):
@@ -248,28 +253,33 @@ class Panel(Widget):
             return
 
         rect = self._layout.rect
+        local_rect = Rect(0, 0, rect.w, rect.h)
         style = self.style
 
-        # Draw shadow (simplified)
-        # A real shadow would use blur shader or multiple rects
+        ctx.push_offset(rect.x, rect.y)
+        try:
+            # Draw shadow (simplified)
+            # A real shadow would use blur shader or multiple rects
 
-        # Draw background
-        if style.background:
-            radius = style.border.radius if style.border else 0
-            ctx.draw_rect(rect, style.background, radius=radius)
+            # Draw background
+            if style.background:
+                radius = style.border.radius if style.border else 0
+                ctx.draw_rect(local_rect, style.background, radius=radius)
 
-        # Draw border
-        if style.border and style.border.width > 0:
-            ctx.draw_rect_outline(
-                rect,
-                style.border.color,
-                width=style.border.width,
-                radius=style.border.radius,
-            )
+            # Draw border
+            if style.border and style.border.width > 0:
+                ctx.draw_rect_outline(
+                    local_rect,
+                    style.border.color,
+                    width=style.border.width,
+                    radius=style.border.radius,
+                )
 
-        # Draw children (title bar and content)
-        for child in self._children:
-            child.draw(ctx)
+            # Draw children (title bar and content)
+            for child in self._children:
+                child.draw(ctx)
+        finally:
+            ctx.pop_offset()
 
 
 class FloatingPanel(Panel):

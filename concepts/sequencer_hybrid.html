@@ -1,0 +1,1229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MIDI Sequencer - Hybrid Design</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #0a0a0a;
+            color: #e0e0e0;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 1900px;
+            margin: 0 auto;
+            background: #1a1a1a;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid #2a2a2a;
+        }
+        
+        /* Header Bar */
+        .header {
+            background: linear-gradient(180deg, #1e1e1e 0%, #161616 100%);
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #2a2a2a;
+        }
+        
+        .app-title {
+            font-size: 16px;
+            font-weight: 500;
+            color: #00d4ff;
+            letter-spacing: 0.5px;
+        }
+        
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .midi-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: #999;
+        }
+        
+        .midi-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #00cc00;
+            box-shadow: 0 0 10px rgba(0, 204, 0, 0.5);
+        }
+        
+        .midi-indicator.disconnected {
+            background: #666;
+            box-shadow: none;
+        }
+        
+        .view-switch {
+            padding: 6px 16px;
+            background: #00d4ff;
+            border: none;
+            border-radius: 6px;
+            color: #0a0a0a;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .view-switch:hover {
+            background: #00e8ff;
+            transform: translateY(-1px);
+        }
+        
+        /* Transport Bar */
+        .transport {
+            background: #1a1a1a;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            border-bottom: 1px solid #2a2a2a;
+        }
+        
+        .transport-controls {
+            display: flex;
+            gap: 10px;
+            padding: 8px 12px;
+            background: #0a0a0a;
+            border: 1px solid #3a3a3a;
+            border-radius: 8px;
+        }
+        
+        .transport-btn {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: #2a2a2a;
+            border: 1px solid #4a4a4a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+        
+        .transport-btn:hover {
+            background: #3a3a3a;
+            border-color: #00d4ff;
+            transform: scale(1.05);
+        }
+        
+        .transport-btn.active {
+            background: #00d4ff;
+            border-color: #00d4ff;
+        }
+        
+        .transport-btn.record.active {
+            background: #ef4444;
+            border-color: #ef4444;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+        
+        /* BPM Control */
+        .bpm-control {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 16px;
+            background: #0a0a0a;
+            border: 1px solid #3a3a3a;
+            border-radius: 8px;
+        }
+        
+        .bpm-label {
+            font-size: 11px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .bpm-display {
+            font-family: 'Courier New', monospace;
+            font-size: 18px;
+            color: #00d4ff;
+            font-weight: bold;
+            min-width: 50px;
+        }
+        
+        .bpm-slider {
+            width: 120px;
+            height: 4px;
+            background: #2a2a2a;
+            border-radius: 2px;
+            position: relative;
+            cursor: pointer;
+        }
+        
+        .bpm-slider-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00d4ff 0%, #0094ff 100%);
+            border-radius: 2px;
+            width: 50%;
+        }
+        
+        .bpm-slider-thumb {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 14px;
+            height: 14px;
+            background: #00d4ff;
+            border: 2px solid #0a0a0a;
+            border-radius: 50%;
+            box-shadow: 0 0 8px rgba(0, 212, 255, 0.4);
+        }
+        
+        /* Loop Controls */
+        .loop-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 16px;
+            background: #0a0a0a;
+            border: 1px solid #3a3a3a;
+            border-radius: 8px;
+        }
+        
+        .loop-label {
+            font-size: 11px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .loop-value {
+            padding: 4px 10px;
+            background: #1a1a1a;
+            border: 1px solid #3a3a3a;
+            border-radius: 4px;
+            font-size: 12px;
+            color: #e0e0e0;
+            min-width: 45px;
+            text-align: center;
+        }
+        
+        .loop-to {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .loop-set-btn {
+            padding: 6px 12px;
+            background: #2a2a2a;
+            border: 1px solid #4a4a4a;
+            border-radius: 4px;
+            color: #e0e0e0;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .loop-set-btn:hover {
+            background: #3a3a3a;
+            border-color: #00d4ff;
+        }
+        
+        /* Pattern Selector */
+        .pattern-selector {
+            display: flex;
+            gap: 6px;
+            padding: 8px 12px;
+            background: #0a0a0a;
+            border: 1px solid #3a3a3a;
+            border-radius: 8px;
+        }
+        
+        .pattern-btn {
+            width: 32px;
+            height: 32px;
+            background: #1a1a1a;
+            border: 1px solid #3a3a3a;
+            border-radius: 4px;
+            color: #666;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .pattern-btn:hover {
+            background: #2a2a2a;
+            border-color: #4a4a4a;
+            color: #999;
+        }
+        
+        .pattern-btn.active {
+            background: #00d4ff;
+            border-color: #00d4ff;
+            color: #0a0a0a;
+        }
+        
+        /* Metronome Toggle */
+        .metronome-toggle {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            background: #0a0a0a;
+            border: 1px solid #3a3a3a;
+            border-radius: 8px;
+        }
+        
+        .metro-label {
+            font-size: 11px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .toggle-switch {
+            width: 40px;
+            height: 20px;
+            background: #2a2a2a;
+            border-radius: 10px;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .toggle-switch.active {
+            background: #00d4ff;
+        }
+        
+        .toggle-knob {
+            width: 16px;
+            height: 16px;
+            background: #666;
+            border-radius: 50%;
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            transition: all 0.3s;
+        }
+        
+        .toggle-switch.active .toggle-knob {
+            left: 22px;
+            background: #0a0a0a;
+        }
+        
+        /* Timecode */
+        .timecode {
+            font-family: 'Courier New', monospace;
+            font-size: 16px;
+            color: #00d4ff;
+            margin-left: auto;
+            padding: 8px 16px;
+            background: #0a0a0a;
+            border: 1px solid #3a3a3a;
+            border-radius: 8px;
+        }
+        
+        /* Main Content */
+        .main-content {
+            display: flex;
+            height: 450px;
+        }
+        
+        /* Track Panel */
+        .track-panel {
+            width: 180px;
+            background: #161616;
+            border-right: 1px solid #2a2a2a;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .track-header {
+            height: 50px;
+            background: #1a1a1a;
+            border-bottom: 1px solid #2a2a2a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .zoom-btn {
+            width: 28px;
+            height: 28px;
+            background: #2a2a2a;
+            border: 1px solid #3a3a3a;
+            border-radius: 4px;
+            color: #999;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .zoom-btn:hover {
+            background: #3a3a3a;
+            border-color: #4a4a4a;
+            color: #e0e0e0;
+        }
+        
+        .track-list {
+            flex: 1;
+            overflow-y: auto;
+        }
+        
+        .track-row {
+            height: 44px;
+            display: flex;
+            align-items: center;
+            padding: 0 12px;
+            gap: 10px;
+            border-bottom: 1px solid #202020;
+            transition: background 0.2s;
+        }
+        
+        .track-row:hover {
+            background: #1a1a1a;
+        }
+        
+        .track-color-bar {
+            width: 4px;
+            height: 28px;
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+        
+        .track-name {
+            font-size: 13px;
+            font-weight: 500;
+            flex: 1;
+            color: #e0e0e0;
+        }
+        
+        .track-controls {
+            display: flex;
+            gap: 4px;
+        }
+        
+        .track-control-btn {
+            width: 24px;
+            height: 24px;
+            background: transparent;
+            border: 1px solid #3a3a3a;
+            border-radius: 3px;
+            color: #666;
+            font-size: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .track-control-btn:hover {
+            background: #2a2a2a;
+            border-color: #4a4a4a;
+            color: #999;
+        }
+        
+        .track-control-btn.active {
+            background: #00d4ff;
+            border-color: #00d4ff;
+            color: #0a0a0a;
+        }
+        
+        .piano-key-indicator {
+            width: 18px;
+            height: 18px;
+            border-radius: 3px;
+            flex-shrink: 0;
+        }
+        
+        .piano-key-indicator.white {
+            background: #e0e0e0;
+            border: 1px solid #999;
+        }
+        
+        .piano-key-indicator.black {
+            background: #1a1a1a;
+            border: 1px solid #4a4a4a;
+        }
+        
+        /* Sequencer Area */
+        .sequencer-area {
+            flex: 1;
+            position: relative;
+            overflow-x: auto;
+            overflow-y: hidden;
+        }
+        
+        .timeline {
+            height: 50px;
+            background: #1a1a1a;
+            border-bottom: 1px solid #2a2a2a;
+            display: flex;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        .beat-marker {
+            flex: 1;
+            min-width: 80px;
+            border-right: 1px solid #252525;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        
+        .beat-marker:nth-child(4n+1) {
+            border-right-color: #3a3a3a;
+        }
+        
+        .beat-number {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 6px;
+        }
+        
+        .beat-marker:nth-child(4n+1) .beat-number {
+            color: #999;
+            font-weight: 600;
+        }
+        
+        .ruler-ticks {
+            display: flex;
+            width: 100%;
+            height: 10px;
+            gap: 0;
+        }
+        
+        .ruler-tick {
+            flex: 1;
+            border-left: 1px solid #2a2a2a;
+            height: 5px;
+        }
+        
+        .ruler-tick.major {
+            height: 10px;
+            border-left-color: #4a4a4a;
+        }
+        
+        .beat-marker:nth-child(4n+1) .ruler-tick.major {
+            border-left-color: #5a5a5a;
+        }
+        
+        /* Grid */
+        .grid {
+            position: relative;
+        }
+        
+        .grid-row {
+            height: 44px;
+            display: flex;
+            border-bottom: 1px solid #202020;
+            position: relative;
+        }
+        
+        .grid-cell {
+            flex: 1;
+            min-width: 80px;
+            border-right: 1px solid #252525;
+            position: relative;
+        }
+        
+        .grid-cell:nth-child(4n+1) {
+            border-right-color: #2a2a2a;
+        }
+        
+        /* Note Blocks */
+        .note-block {
+            position: absolute;
+            height: 40px;
+            top: 2px;
+            border-radius: 4px;
+            background: linear-gradient(135deg, #4a4a4a 0%, #2a2a2a 100%);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .note-block:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.5);
+        }
+        
+        .note-block.kick { border: 2px solid #ff4b2b; }
+        .note-block.snare { border: 2px solid #38ef7d; }
+        .note-block.hihat { border: 2px solid #00f2fe; }
+        .note-block.clap { border: 2px solid #fee140; }
+        .note-block.bass { border: 2px solid #4a00e0; }
+        .note-block.lead { border: 2px solid #f5576c; }
+        .note-block.pad { border: 2px solid #00d4ff; }
+        .note-block.fx { border: 2px solid #f59e0b; }
+        
+        .waveform {
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 30"><path d="M0,15 Q10,5 20,15 T40,15 T60,15 T80,15 T100,15" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="2"/></svg>');
+            background-size: 100% 100%;
+            opacity: 0.7;
+        }
+        
+        /* Playhead */
+        .playhead {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #00ff88;
+            left: 160px;
+            z-index: 5;
+            box-shadow: 0 0 12px rgba(0, 255, 136, 0.6);
+            pointer-events: none;
+        }
+        
+        .playhead::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -6px;
+            width: 0;
+            height: 0;
+            border-left: 7px solid transparent;
+            border-right: 7px solid transparent;
+            border-top: 10px solid #00ff88;
+        }
+        
+        /* Loop Range Indicators */
+        .loop-marker {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: rgba(255, 255, 255, 0.6);
+            z-index: 4;
+            pointer-events: none;
+        }
+        
+        .loop-marker.start {
+            left: 0;
+        }
+        
+        .loop-marker.end {
+            left: 320px;
+        }
+        
+        /* Transport icons */
+        .icon-play::before { content: '▶'; color: white; font-size: 14px; }
+        .icon-stop::before { content: '■'; color: #999; font-size: 14px; }
+        .icon-record::before { content: '●'; color: #ef4444; font-size: 16px; }
+        .icon-loop::before { content: '⟲'; color: #999; font-size: 16px; }
+        
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #1a1a1a;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #3a3a3a;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #4a4a4a;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="app-title">SEQUENCER</div>
+            <div class="header-controls">
+                <div class="midi-status">
+                    <div class="midi-indicator"></div>
+                    <span>MIDI Connected</span>
+                </div>
+                <button class="view-switch">Switch to Pads View</button>
+            </div>
+        </div>
+        
+        <!-- Transport Bar -->
+        <div class="transport">
+            <!-- Playback Controls -->
+            <div class="transport-controls">
+                <div class="transport-btn"><span class="icon-stop"></span></div>
+                <div class="transport-btn active"><span class="icon-play"></span></div>
+                <div class="transport-btn record"><span class="icon-record"></span></div>
+                <div class="transport-btn"><span class="icon-loop"></span></div>
+            </div>
+            
+            <!-- BPM Control -->
+            <div class="bpm-control">
+                <div class="bpm-label">BPM</div>
+                <div class="bpm-display">120</div>
+                <div class="bpm-slider">
+                    <div class="bpm-slider-fill"></div>
+                    <div class="bpm-slider-thumb"></div>
+                </div>
+            </div>
+            
+            <!-- Loop Controls -->
+            <div class="loop-controls">
+                <div class="loop-label">Loop</div>
+                <div class="loop-value">1:1</div>
+                <div class="loop-to">to</div>
+                <div class="loop-value">5:1</div>
+                <button class="loop-set-btn">Set</button>
+            </div>
+            
+            <!-- Pattern Selector -->
+            <div class="pattern-selector">
+                <div class="pattern-btn active">A</div>
+                <div class="pattern-btn">B</div>
+                <div class="pattern-btn">C</div>
+                <div class="pattern-btn">D</div>
+            </div>
+            
+            <!-- Metronome -->
+            <div class="metronome-toggle">
+                <div class="metro-label">Metro</div>
+                <div class="toggle-switch active">
+                    <div class="toggle-knob"></div>
+                </div>
+            </div>
+            
+            <!-- Timecode -->
+            <div class="timecode">00:02:14.320</div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Track Panel -->
+            <div class="track-panel">
+                <div class="track-header">
+                    <button class="zoom-btn">−</button>
+                    <button class="zoom-btn">+</button>
+                </div>
+                <div class="track-list">
+                    <div class="track-row">
+                        <div class="track-color-bar" style="background: #ff4b2b;"></div>
+                        <div class="track-name">Kick</div>
+                        <div class="track-controls">
+                            <button class="track-control-btn">M</button>
+                            <button class="track-control-btn active">S</button>
+                        </div>
+                        <div class="piano-key-indicator white"></div>
+                    </div>
+                    <div class="track-row">
+                        <div class="track-color-bar" style="background: #38ef7d;"></div>
+                        <div class="track-name">Snare</div>
+                        <div class="track-controls">
+                            <button class="track-control-btn">M</button>
+                            <button class="track-control-btn">S</button>
+                        </div>
+                        <div class="piano-key-indicator black"></div>
+                    </div>
+                    <div class="track-row">
+                        <div class="track-color-bar" style="background: #00f2fe;"></div>
+                        <div class="track-name">Hi-Hat</div>
+                        <div class="track-controls">
+                            <button class="track-control-btn">M</button>
+                            <button class="track-control-btn">S</button>
+                        </div>
+                        <div class="piano-key-indicator white"></div>
+                    </div>
+                    <div class="track-row">
+                        <div class="track-color-bar" style="background: #fee140;"></div>
+                        <div class="track-name">Clap</div>
+                        <div class="track-controls">
+                            <button class="track-control-btn">M</button>
+                            <button class="track-control-btn">S</button>
+                        </div>
+                        <div class="piano-key-indicator black"></div>
+                    </div>
+                    <div class="track-row">
+                        <div class="track-color-bar" style="background: #4a00e0;"></div>
+                        <div class="track-name">Bass</div>
+                        <div class="track-controls">
+                            <button class="track-control-btn">M</button>
+                            <button class="track-control-btn">S</button>
+                        </div>
+                        <div class="piano-key-indicator white"></div>
+                    </div>
+                    <div class="track-row">
+                        <div class="track-color-bar" style="background: #f5576c;"></div>
+                        <div class="track-name">Lead</div>
+                        <div class="track-controls">
+                            <button class="track-control-btn">M</button>
+                            <button class="track-control-btn">S</button>
+                        </div>
+                        <div class="piano-key-indicator white"></div>
+                    </div>
+                    <div class="track-row">
+                        <div class="track-color-bar" style="background: #00d4ff;"></div>
+                        <div class="track-name">Pad</div>
+                        <div class="track-controls">
+                            <button class="track-control-btn">M</button>
+                            <button class="track-control-btn">S</button>
+                        </div>
+                        <div class="piano-key-indicator black"></div>
+                    </div>
+                    <div class="track-row">
+                        <div class="track-color-bar" style="background: #f59e0b;"></div>
+                        <div class="track-name">FX</div>
+                        <div class="track-controls">
+                            <button class="track-control-btn">M</button>
+                            <button class="track-control-btn">S</button>
+                        </div>
+                        <div class="piano-key-indicator white"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Sequencer Area -->
+            <div class="sequencer-area">
+                <!-- Timeline -->
+                <div class="timeline">
+                    <div class="beat-marker">
+                        <div class="beat-number">1</div>
+                        <div class="ruler-ticks">
+                            <div class="ruler-tick major"></div>
+                            <div class="ruler-tick"></div>
+                            <div class="ruler-tick"></div>
+                            <div class="ruler-tick"></div>
+                        </div>
+                    </div>
+                    <div class="beat-marker">
+                        <div class="beat-number">2</div>
+                        <div class="ruler-ticks">
+                            <div class="ruler-tick major"></div>
+                            <div class="ruler-tick"></div>
+                            <div class="ruler-tick"></div>
+                            <div class="ruler-tick"></div>
+                        </div>
+                    </div>
+                    <div class="beat-marker">
+                        <div class="beat-number">3</div>
+                        <div class="ruler-ticks">
+                            <div class="ruler-tick major"></div>
+                            <div class="ruler-tick"></div>
+                            <div class="ruler-tick"></div>
+                            <div class="ruler-tick"></div>
+                        </div>
+                    </div>
+                    <div class="beat-marker">
+                        <div class="beat-number">4</div>
+                        <div class="ruler-ticks">
+                            <div class="ruler-tick major"></div>
+                            <div class="ruler-tick"></div>
+                            <div class="ruler-tick"></div>
+                            <div class="ruler-tick"></div>
+                        </div>
+                    </div>
+                    <div class="beat-marker">
+                        <div class="beat-number">5</div>
+                        <div class="ruler-ticks">
+                            <div class="ruler-tick major"></div>
+                            <div class="ruler-tick"></div>
+                            <div class="ruler-tick"></div>
+                            <div class="ruler-tick"></div>
+                        </div>
+                    </div>
+                    <div class="beat-marker">
+                        <div class="beat-number">6</div>
+                        <div class="ruler-ticks">
+                            <div class="ruler-tick major"></div>
+                            <div class="ruler-tick"></div>
+                            <div class="ruler-tick"></div>
+                            <div class="ruler-tick"></div>
+                        </div>
+                    </div>
+                    <div class="beat-marker">
+                        <div class="beat-number">7</div>
+                        <div class="ruler-ticks">
+                            <div class="ruler-tick major"></div>
+                            <div class="ruler-tick"></div>
+                            <div class="ruler-tick"></div>
+                            <div class="ruler-tick"></div>
+                        </div>
+                    </div>
+                    <div class="beat-marker">
+                        <div class="beat-number">8</div>
+                        <div class="ruler-ticks">
+                            <div class="ruler-tick major"></div>
+                            <div class="ruler-tick"></div>
+                            <div class="ruler-tick"></div>
+                            <div class="ruler-tick"></div>
+                        </div>
+                    </div>
+                    <div class="beat-marker">
+                        <div class="beat-number">9</div>
+                        <div class="ruler-ticks">
+                            <div class="ruler-tick major"></div>
+                            <div class="ruler-tick"></div>
+                            <div class="ruler-tick"></div>
+                            <div class="ruler-tick"></div>
+                        </div>
+                    </div>
+                    <div class="beat-marker">
+                        <div class="beat-number">10</div>
+                        <div class="ruler-ticks">
+                            <div class="ruler-tick major"></div>
+                            <div class="ruler-tick"></div>
+                            <div class="ruler-tick"></div>
+                            <div class="ruler-tick"></div>
+                        </div>
+                    </div>
+                    <div class="beat-marker">
+                        <div class="beat-number">11</div>
+                        <div class="ruler-ticks">
+                            <div class="ruler-tick major"></div>
+                            <div class="ruler-tick"></div>
+                            <div class="ruler-tick"></div>
+                            <div class="ruler-tick"></div>
+                        </div>
+                    </div>
+                    <div class="beat-marker">
+                        <div class="beat-number">12</div>
+                        <div class="ruler-ticks">
+                            <div class="ruler-tick major"></div>
+                            <div class="ruler-tick"></div>
+                            <div class="ruler-tick"></div>
+                            <div class="ruler-tick"></div>
+                        </div>
+                    </div>
+                    <div class="beat-marker">
+                        <div class="beat-number">13</div>
+                        <div class="ruler-ticks">
+                            <div class="ruler-tick major"></div>
+                            <div class="ruler-tick"></div>
+                            <div class="ruler-tick"></div>
+                            <div class="ruler-tick"></div>
+                        </div>
+                    </div>
+                    <div class="beat-marker">
+                        <div class="beat-number">14</div>
+                        <div class="ruler-ticks">
+                            <div class="ruler-tick major"></div>
+                            <div class="ruler-tick"></div>
+                            <div class="ruler-tick"></div>
+                            <div class="ruler-tick"></div>
+                        </div>
+                    </div>
+                    <div class="beat-marker">
+                        <div class="beat-number">15</div>
+                        <div class="ruler-ticks">
+                            <div class="ruler-tick major"></div>
+                            <div class="ruler-tick"></div>
+                            <div class="ruler-tick"></div>
+                            <div class="ruler-tick"></div>
+                        </div>
+                    </div>
+                    <div class="beat-marker">
+                        <div class="beat-number">16</div>
+                        <div class="ruler-ticks">
+                            <div class="ruler-tick major"></div>
+                            <div class="ruler-tick"></div>
+                            <div class="ruler-tick"></div>
+                            <div class="ruler-tick"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Grid -->
+                <div class="grid">
+                    <!-- Kick -->
+                    <div class="grid-row">
+                        <div class="grid-cell">
+                            <div class="note-block kick" style="left: 0; width: 76px;">
+                                <div class="waveform"></div>
+                            </div>
+                        </div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell">
+                            <div class="note-block kick" style="left: 0; width: 76px;">
+                                <div class="waveform"></div>
+                            </div>
+                        </div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell">
+                            <div class="note-block kick" style="left: 0; width: 76px;">
+                                <div class="waveform"></div>
+                            </div>
+                        </div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell">
+                            <div class="note-block kick" style="left: 0; width: 76px;">
+                                <div class="waveform"></div>
+                            </div>
+                        </div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                    </div>
+                    
+                    <!-- Snare -->
+                    <div class="grid-row">
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell">
+                            <div class="note-block snare" style="left: 0; width: 76px;">
+                                <div class="waveform"></div>
+                            </div>
+                        </div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell">
+                            <div class="note-block snare" style="left: 0; width: 76px;">
+                                <div class="waveform"></div>
+                            </div>
+                        </div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                    </div>
+                    
+                    <!-- Hi-Hat -->
+                    <div class="grid-row">
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell">
+                            <div class="note-block hihat" style="left: 0; width: 76px;">
+                                <div class="waveform"></div>
+                            </div>
+                        </div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell">
+                            <div class="note-block hihat" style="left: 0; width: 76px;">
+                                <div class="waveform"></div>
+                            </div>
+                        </div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell">
+                            <div class="note-block hihat" style="left: 0; width: 76px;">
+                                <div class="waveform"></div>
+                            </div>
+                        </div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell">
+                            <div class="note-block hihat" style="left: 0; width: 76px;">
+                                <div class="waveform"></div>
+                            </div>
+                        </div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell">
+                            <div class="note-block hihat" style="left: 0; width: 76px;">
+                                <div class="waveform"></div>
+                            </div>
+                        </div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell">
+                            <div class="note-block hihat" style="left: 0; width: 76px;">
+                                <div class="waveform"></div>
+                            </div>
+                        </div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell">
+                            <div class="note-block hihat" style="left: 0; width: 76px;">
+                                <div class="waveform"></div>
+                            </div>
+                        </div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell">
+                            <div class="note-block hihat" style="left: 0; width: 76px;">
+                                <div class="waveform"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Clap -->
+                    <div class="grid-row">
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell">
+                            <div class="note-block clap" style="left: 0; width: 76px;">
+                                <div class="waveform"></div>
+                            </div>
+                        </div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell">
+                            <div class="note-block clap" style="left: 0; width: 76px;">
+                                <div class="waveform"></div>
+                            </div>
+                        </div>
+                        <div class="grid-cell"></div>
+                    </div>
+                    
+                    <!-- Bass -->
+                    <div class="grid-row">
+                        <div class="grid-cell">
+                            <div class="note-block bass" style="left: 0; width: 156px;">
+                                <div class="waveform"></div>
+                            </div>
+                        </div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell">
+                            <div class="note-block bass" style="left: 0; width: 76px;">
+                                <div class="waveform"></div>
+                            </div>
+                        </div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell">
+                            <div class="note-block bass" style="left: 0; width: 236px;">
+                                <div class="waveform"></div>
+                            </div>
+                        </div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                    </div>
+                    
+                    <!-- Lead -->
+                    <div class="grid-row">
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell">
+                            <div class="note-block lead" style="left: 0; width: 156px;">
+                                <div class="waveform"></div>
+                            </div>
+                        </div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell">
+                            <div class="note-block lead" style="left: 0; width: 156px;">
+                                <div class="waveform"></div>
+                            </div>
+                        </div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                    </div>
+                    
+                    <!-- Pad -->
+                    <div class="grid-row">
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                    </div>
+                    
+                    <!-- FX -->
+                    <div class="grid-row">
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                    </div>
+                </div>
+                
+                <!-- Playhead -->
+                <div class="playhead"></div>
+                
+                <!-- Loop Markers -->
+                <div class="loop-marker start"></div>
+                <div class="loop-marker end"></div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

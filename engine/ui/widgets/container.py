@@ -141,4 +141,9 @@ class Divider(Widget):
             return
 
         rect = self._layout.rect
-        ctx.draw_rect(rect, self._color)
+        local_rect = Rect(0, 0, rect.w, rect.h)
+        ctx.push_offset(rect.x, rect.y)
+        try:
+            ctx.draw_rect(local_rect, self._color)
+        finally:
+            ctx.pop_offset()

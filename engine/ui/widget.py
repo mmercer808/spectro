@@ -271,8 +271,13 @@ class Widget:
         """
         style = self.style
 
-        # Compute content rect (inside padding)
-        content = rect.inset_by(style.padding)
+        # Compute content rect in local coordinates (inside padding)
+        content = Rect(
+            x=style.padding.left,
+            y=style.padding.top,
+            w=max(0, rect.w - style.padding.horizontal),
+            h=max(0, rect.h - style.padding.vertical),
+        )
 
         self._layout = LayoutResult(rect=rect, content_rect=content)
 
@@ -297,25 +302,30 @@ class Widget:
             return
 
         rect = self._layout.rect
+        local_rect = Rect(0, 0, rect.w, rect.h)
         style = self.style
 
-        # Draw background
-        if style.background is not None:
-            radius = style.border.radius if style.border else 0
-            ctx.draw_rect(rect, style.background, radius=radius)
+        ctx.push_offset(rect.x, rect.y)
+        try:
+            # Draw background
+            if style.background is not None:
+                radius = style.border.radius if style.border else 0
+                ctx.draw_rect(local_rect, style.background, radius=radius)
 
-        # Draw border
-        if style.border and style.border.width > 0:
-            ctx.draw_rect_outline(
-                rect,
-                style.border.color,
-                width=style.border.width,
-                radius=style.border.radius,
-            )
+            # Draw border
+            if style.border and style.border.width > 0:
+                ctx.draw_rect_outline(
+                    local_rect,
+                    style.border.color,
+                    width=style.border.width,
+                    radius=style.border.radius,
+                )
 
-        # Draw children
-        for child in self._children:
-            child.draw(ctx)
+            # Draw children
+            for child in self._children:
+                child.draw(ctx)
+        finally:
+            ctx.pop_offset()
 
     # -------------------------------------------------------------------------
     # Hit Testing
@@ -465,6 +475,24 @@ class Widget:
         print(f"{prefix}{self}")
         for child in self._children:
             child.print_tree(indent + 1)
+
+    def get_absolute_rect(self) -> Optional[Rect]:
+        """Get this widget's rect in window coordinates."""
+        if self._layout is None:
+            return None
+
+        x = self._layout.rect.x
+        y = self._layout.rect.y
+        w = self._layout.rect.w
+        h = self._layout.rect.h
+
+        parent = self.parent
+        while parent is not None and parent._layout is not None:
+            x += parent._layout.rect.x
+            y += parent._layout.rect.y
+            parent = parent.parent
+
+        return Rect(x, y, w, h)
 
 
 # =============================================================================

@@ -151,33 +151,38 @@ class Button(Widget):
             return
 
         rect = self._layout.rect
+        local_rect = Rect(0, 0, rect.w, rect.h)
         style = self.current_style
 
-        # Draw background
-        if style.background:
-            radius = style.border.radius if style.border else 0
-            ctx.draw_rect(rect, style.background, radius=radius)
+        ctx.push_offset(rect.x, rect.y)
+        try:
+            # Draw background
+            if style.background:
+                radius = style.border.radius if style.border else 0
+                ctx.draw_rect(local_rect, style.background, radius=radius)
 
-        # Draw border
-        if style.border and style.border.width > 0:
-            ctx.draw_rect_outline(
-                rect,
-                style.border.color,
-                width=style.border.width,
-                radius=style.border.radius,
-            )
+            # Draw border
+            if style.border and style.border.width > 0:
+                ctx.draw_rect_outline(
+                    local_rect,
+                    style.border.color,
+                    width=style.border.width,
+                    radius=style.border.radius,
+                )
 
-        # Draw text
-        if self._text:
-            content = self._layout.content_rect
-            ctx.draw_text_in_rect(
-                self._text,
-                content,
-                style.font_color,
-                font_size=style.font_size,
-                align="center",
-                valign="center",
-            )
+            # Draw text
+            if self._text:
+                content = self._layout.content_rect
+                ctx.draw_text_in_rect(
+                    self._text,
+                    content,
+                    style.font_color,
+                    font_size=style.font_size,
+                    align="center",
+                    valign="center",
+                )
+        finally:
+            ctx.pop_offset()
 
 
 class IconButton(Button):

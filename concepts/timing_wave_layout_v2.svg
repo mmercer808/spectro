@@ -1,0 +1,455 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 1100">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#0a0a0f"/>
+      <stop offset="100%" style="stop-color:#12121a"/>
+    </linearGradient>
+    
+    <linearGradient id="beat1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ff6b6b"/>
+      <stop offset="100%" style="stop-color:#ff4757"/>
+    </linearGradient>
+    <linearGradient id="beat2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffd93d"/>
+      <stop offset="100%" style="stop-color:#ffbe0b"/>
+    </linearGradient>
+    <linearGradient id="beat3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#6bcb77"/>
+      <stop offset="100%" style="stop-color:#38ef7d"/>
+    </linearGradient>
+    <linearGradient id="beat4" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4d96ff"/>
+      <stop offset="100%" style="stop-color:#00d4ff"/>
+    </linearGradient>
+    
+    <linearGradient id="waveGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#ff6b6b"/>
+      <stop offset="25%" style="stop-color:#ffd93d"/>
+      <stop offset="50%" style="stop-color:#6bcb77"/>
+      <stop offset="75%" style="stop-color:#4d96ff"/>
+      <stop offset="100%" style="stop-color:#ff6b6b"/>
+    </linearGradient>
+
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    
+    <filter id="softGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="6" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="1400" height="1100" fill="url(#bgGrad)"/>
+  
+  <!-- Title -->
+  <text x="700" y="30" text-anchor="middle" fill="#00d4ff" font-family="monospace" font-size="16" font-weight="bold">
+    LAYOUT V2 - ALTERNATIVE ARRANGEMENT
+  </text>
+  
+  <!-- ==================== ROW 1: SYNC CIRCLES (GLOBAL) ==================== -->
+  <g transform="translate(50, 50)">
+    <rect width="500" height="180" rx="8" fill="#0f0f14" stroke="#1a1a2a" stroke-width="1"/>
+    <text x="15" y="25" fill="#00d4ff" font-family="monospace" font-size="10">SYNC_CIRCLES</text>
+    <text x="485" y="25" text-anchor="end" fill="#333" font-family="monospace" font-size="8">4-BAR VIEW (16 beats)</text>
+    
+    <!-- 4 circles in a row, connected -->
+    <g transform="translate(70, 100)">
+      <circle cx="0" cy="0" r="45" fill="none" stroke="url(#beat1)" stroke-width="2.5" opacity="0.7"/>
+      <circle cx="0" cy="-40" r="6" fill="#ff6b6b" filter="url(#glow)"/>
+      <text x="0" y="60" text-anchor="middle" fill="#444" font-family="monospace" font-size="10">1</text>
+    </g>
+    <g transform="translate(160, 100)">
+      <circle cx="0" cy="0" r="45" fill="none" stroke="url(#beat2)" stroke-width="2.5" opacity="0.7"/>
+      <circle cx="-40" cy="0" r="6" fill="#ffd93d" filter="url(#glow)"/>
+      <text x="0" y="60" text-anchor="middle" fill="#444" font-family="monospace" font-size="10">2</text>
+    </g>
+    <g transform="translate(250, 100)">
+      <circle cx="0" cy="0" r="45" fill="none" stroke="url(#beat3)" stroke-width="2.5" opacity="0.7"/>
+      <circle cx="0" cy="40" r="6" fill="#6bcb77" filter="url(#glow)"/>
+      <text x="0" y="60" text-anchor="middle" fill="#444" font-family="monospace" font-size="10">3</text>
+    </g>
+    <g transform="translate(340, 100)">
+      <circle cx="0" cy="0" r="45" fill="none" stroke="url(#beat4)" stroke-width="2.5" opacity="0.7"/>
+      <circle cx="40" cy="0" r="6" fill="#4d96ff" filter="url(#glow)"/>
+      <text x="0" y="60" text-anchor="middle" fill="#444" font-family="monospace" font-size="10">4</text>
+    </g>
+    
+    <!-- Wave connector -->
+    <path d="M 70 60 Q 115 100, 160 100 Q 205 100, 250 140 Q 295 100, 340 100" 
+          fill="none" stroke="url(#waveGrad)" stroke-width="2" opacity="0.5" stroke-dasharray="4,2"/>
+    
+    <!-- Mini stats -->
+    <rect x="400" y="50" width="85" height="100" rx="4" fill="#0a0a0f" stroke="#222"/>
+    <text x="442" y="75" text-anchor="middle" fill="#333" font-family="monospace" font-size="8">GLOBAL</text>
+    <text x="442" y="100" text-anchor="middle" fill="#00ff88" font-family="monospace" font-size="14">92%</text>
+    <text x="442" y="120" text-anchor="middle" fill="#ffd93d" font-family="monospace" font-size="11">-8ms</text>
+    <text x="442" y="140" text-anchor="middle" fill="#333" font-family="monospace" font-size="8">avg</text>
+  </g>
+  
+  <!-- ==================== ROW 1 RIGHT: BEAT CIRCLES + HISTOGRAMS ==================== -->
+  <g transform="translate(570, 50)">
+    <rect width="780" height="180" rx="8" fill="#0f0f14" stroke="#1a1a2a" stroke-width="1"/>
+    <text x="15" y="25" fill="#00d4ff" font-family="monospace" font-size="10">BEAT_CIRCLES[4] + HISTOGRAMS[4]</text>
+    <text x="765" y="25" text-anchor="end" fill="#333" font-family="monospace" font-size="8">1-BAR VIEW (per beat detail)</text>
+    
+    <!-- Beat 1 -->
+    <g transform="translate(50, 55)">
+      <!-- Circle with fading hit dots -->
+      <circle cx="40" cy="40" r="35" fill="none" stroke="#ff6b6b" stroke-width="2" opacity="0.6"/>
+      <circle cx="40" cy="5" r="5" fill="#ff6b6b" opacity="1.0"/>
+      <circle cx="37" cy="7" r="3" fill="#ff6b6b" opacity="0.6"/>
+      <circle cx="44" cy="8" r="3" fill="#ff6b6b" opacity="0.3"/>
+      <circle cx="35" cy="10" r="2" fill="#ff6b6b" opacity="0.15"/>
+      
+      <!-- Histogram below -->
+      <rect x="0" y="85" width="80" height="35" rx="2" fill="#0a0a0f" stroke="#222"/>
+      <rect x="8" y="105" width="8" height="12" fill="#ff6b6b" opacity="0.3"/>
+      <rect x="18" y="100" width="8" height="17" fill="#ff6b6b" opacity="0.5"/>
+      <rect x="28" y="93" width="8" height="24" fill="#ff6b6b" opacity="0.8"/>
+      <rect x="38" y="96" width="8" height="21" fill="#ff6b6b" opacity="0.95"/>
+      <rect x="48" y="100" width="8" height="17" fill="#ff6b6b" opacity="0.6"/>
+      <rect x="58" y="105" width="8" height="12" fill="#ff6b6b" opacity="0.3"/>
+      <line x1="40" y1="88" x2="40" y2="117" stroke="#00ff88" stroke-width="1.5"/>
+      <text x="40" y="132" text-anchor="middle" fill="#ff6b6b" font-family="monospace" font-size="11" font-weight="bold">1</text>
+    </g>
+    
+    <!-- Beat 2 -->
+    <g transform="translate(195, 55)">
+      <circle cx="40" cy="40" r="35" fill="none" stroke="#ffd93d" stroke-width="2" opacity="0.6"/>
+      <circle cx="38" cy="6" r="5" fill="#ffd93d" opacity="1.0"/>
+      <circle cx="35" cy="9" r="3" fill="#ffd93d" opacity="0.5"/>
+      
+      <rect x="0" y="85" width="80" height="35" rx="2" fill="#0a0a0f" stroke="#222"/>
+      <rect x="18" y="102" width="8" height="15" fill="#ffd93d" opacity="0.4"/>
+      <rect x="28" y="95" width="8" height="22" fill="#ffd93d" opacity="0.85"/>
+      <rect x="38" y="98" width="8" height="19" fill="#ffd93d" opacity="0.7"/>
+      <rect x="48" y="103" width="8" height="14" fill="#ffd93d" opacity="0.4"/>
+      <line x1="40" y1="88" x2="40" y2="117" stroke="#00ff88" stroke-width="1.5"/>
+      <text x="40" y="132" text-anchor="middle" fill="#ffd93d" font-family="monospace" font-size="11" font-weight="bold">2</text>
+    </g>
+    
+    <!-- Beat 3 -->
+    <g transform="translate(340, 55)">
+      <circle cx="40" cy="40" r="35" fill="none" stroke="#6bcb77" stroke-width="2" opacity="0.6"/>
+      <circle cx="40" cy="5" r="5" fill="#6bcb77" opacity="1.0"/>
+      
+      <rect x="0" y="85" width="80" height="35" rx="2" fill="#0a0a0f" stroke="#222"/>
+      <rect x="28" y="97" width="8" height="20" fill="#6bcb77" opacity="0.6"/>
+      <rect x="38" y="92" width="8" height="25" fill="#6bcb77" opacity="0.95"/>
+      <rect x="48" y="96" width="8" height="21" fill="#6bcb77" opacity="0.7"/>
+      <line x1="40" y1="88" x2="40" y2="117" stroke="#00ff88" stroke-width="1.5"/>
+      <text x="40" y="132" text-anchor="middle" fill="#6bcb77" font-family="monospace" font-size="11" font-weight="bold">3</text>
+    </g>
+    
+    <!-- Beat 4 -->
+    <g transform="translate(485, 55)">
+      <circle cx="40" cy="40" r="35" fill="none" stroke="#4d96ff" stroke-width="2" opacity="0.6"/>
+      <circle cx="45" cy="8" r="5" fill="#4d96ff" opacity="1.0"/>
+      <circle cx="48" cy="12" r="3" fill="#4d96ff" opacity="0.4"/>
+      
+      <rect x="0" y="85" width="80" height="35" rx="2" fill="#0a0a0f" stroke="#222"/>
+      <rect x="38" y="100" width="8" height="17" fill="#4d96ff" opacity="0.5"/>
+      <rect x="48" y="94" width="8" height="23" fill="#4d96ff" opacity="0.8"/>
+      <rect x="58" y="98" width="8" height="19" fill="#4d96ff" opacity="0.6"/>
+      <line x1="40" y1="88" x2="40" y2="117" stroke="#00ff88" stroke-width="1.5"/>
+      <text x="40" y="132" text-anchor="middle" fill="#4d96ff" font-family="monospace" font-size="11" font-weight="bold">4</text>
+    </g>
+    
+    <!-- Aggregate column -->
+    <g transform="translate(630, 35)">
+      <rect width="130" height="135" rx="4" fill="#0a0a0f" stroke="#222"/>
+      <text x="65" y="18" text-anchor="middle" fill="#333" font-family="monospace" font-size="8">AGGREGATE</text>
+      
+      <!-- Heatmap columns -->
+      <rect x="15" y="30" width="20" height="8" fill="#ff6b6b" opacity="0.3"/>
+      <rect x="15" y="42" width="20" height="8" fill="#ff6b6b" opacity="0.6"/>
+      <rect x="15" y="54" width="20" height="8" fill="#ff6b6b" opacity="0.9"/>
+      <rect x="15" y="66" width="20" height="8" fill="#ff6b6b" opacity="0.7"/>
+      <rect x="15" y="78" width="20" height="8" fill="#ff6b6b" opacity="0.4"/>
+      
+      <rect x="40" y="42" width="20" height="8" fill="#ffd93d" opacity="0.4"/>
+      <rect x="40" y="54" width="20" height="8" fill="#ffd93d" opacity="0.85"/>
+      <rect x="40" y="66" width="20" height="8" fill="#ffd93d" opacity="0.6"/>
+      
+      <rect x="65" y="48" width="20" height="8" fill="#6bcb77" opacity="0.5"/>
+      <rect x="65" y="60" width="20" height="8" fill="#6bcb77" opacity="0.95"/>
+      <rect x="65" y="72" width="20" height="8" fill="#6bcb77" opacity="0.4"/>
+      
+      <rect x="90" y="60" width="20" height="8" fill="#4d96ff" opacity="0.6"/>
+      <rect x="90" y="72" width="20" height="8" fill="#4d96ff" opacity="0.85"/>
+      <rect x="90" y="84" width="20" height="8" fill="#4d96ff" opacity="0.5"/>
+      
+      <text x="25" y="115" text-anchor="middle" fill="#ff6b6b" font-family="monospace" font-size="8">1</text>
+      <text x="50" y="115" text-anchor="middle" fill="#ffd93d" font-family="monospace" font-size="8">2</text>
+      <text x="75" y="115" text-anchor="middle" fill="#6bcb77" font-family="monospace" font-size="8">3</text>
+      <text x="100" y="115" text-anchor="middle" fill="#4d96ff" font-family="monospace" font-size="8">4</text>
+      
+      <text x="5" y="40" fill="#222" font-family="monospace" font-size="6">-60</text>
+      <text x="5" y="65" fill="#00ff88" font-family="monospace" font-size="6">0</text>
+      <text x="5" y="90" fill="#222" font-family="monospace" font-size="6">+60</text>
+    </g>
+  </g>
+  
+  
+  <!-- ==================== ROW 2: UNIFIED WAVE PANEL ==================== -->
+  <g transform="translate(50, 250)">
+    <rect width="1300" height="320" rx="8" fill="#0f0f14" stroke="#1a1a2a" stroke-width="1"/>
+    <text x="15" y="25" fill="#00d4ff" font-family="monospace" font-size="10">WAVE_PANEL (unified scrolling component)</text>
+    <text x="1285" y="25" text-anchor="end" fill="#333" font-family="monospace" font-size="8">scroll: LEFT ← @ BPM</text>
+    
+    <!-- LAYER 1: TIMING FEEDBACK (top) -->
+    <g transform="translate(20, 40)">
+      <rect width="1260" height="80" rx="4" fill="#0a0a0f" stroke="#1a1a1a"/>
+      <text x="10" y="18" fill="#ff9500" font-family="monospace" font-size="9">TIMING FEEDBACK</text>
+      
+      <!-- Metering axis (surfboard reference) -->
+      <line x1="60" y1="50" x2="1200" y2="50" stroke="#333" stroke-width="2"/>
+      <text x="40" y="54" fill="#444" font-family="monospace" font-size="8">0ms</text>
+      
+      <!-- Tolerance lines -->
+      <line x1="60" y1="30" x2="1200" y2="30" stroke="#222" stroke-width="1" stroke-dasharray="3,3"/>
+      <line x1="60" y1="70" x2="1200" y2="70" stroke="#222" stroke-width="1" stroke-dasharray="3,3"/>
+      <text x="1210" y="33" fill="#333" font-family="monospace" font-size="7">+60</text>
+      <text x="1210" y="73" fill="#333" font-family="monospace" font-size="7">-60</text>
+      
+      <!-- Player wave (metering) -->
+      <path d="M 60 50 Q 140 35, 220 50 Q 300 68, 380 50 Q 460 30, 540 50 Q 620 65, 700 50 Q 780 38, 860 50 Q 940 60, 1020 50 Q 1100 42, 1180 50" 
+            fill="none" stroke="#ff9500" stroke-width="2.5" opacity="0.8"/>
+      
+      <!-- Hit dots on the wave -->
+      <circle cx="220" cy="50" r="5" fill="#ff6b6b" filter="url(#glow)"/>
+      <circle cx="380" cy="50" r="5" fill="#ffd93d" filter="url(#glow)"/>
+      <circle cx="540" cy="50" r="5" fill="#6bcb77" filter="url(#glow)"/>
+      <circle cx="700" cy="50" r="5" fill="#4d96ff" filter="url(#glow)"/>
+      <circle cx="860" cy="50" r="5" fill="#ff6b6b" filter="url(#glow)"/>
+      <circle cx="1020" cy="50" r="5" fill="#ffd93d" filter="url(#glow)"/>
+      
+      <!-- Beat markers -->
+      <text x="220" y="75" text-anchor="middle" fill="#666" font-family="monospace" font-size="8">1</text>
+      <text x="380" y="75" text-anchor="middle" fill="#666" font-family="monospace" font-size="8">2</text>
+      <text x="540" y="75" text-anchor="middle" fill="#666" font-family="monospace" font-size="8">3</text>
+      <text x="700" y="75" text-anchor="middle" fill="#666" font-family="monospace" font-size="8">4</text>
+      <text x="860" y="75" text-anchor="middle" fill="#666" font-family="monospace" font-size="8">1</text>
+      <text x="1020" y="75" text-anchor="middle" fill="#666" font-family="monospace" font-size="8">2</text>
+    </g>
+    
+    <!-- LAYER 2: TRANSCRIPTION (middle) -->
+    <g transform="translate(20, 130)">
+      <rect width="1260" height="80" rx="4" fill="#0a0a0f" stroke="#1a1a1a"/>
+      <text x="10" y="18" fill="#00d4ff" font-family="monospace" font-size="9">TRANSCRIPTION</text>
+      <text x="1250" y="18" text-anchor="end" fill="#333" font-family="monospace" font-size="7">(pre-loaded targets)</text>
+      
+      <!-- Center axis -->
+      <line x1="60" y1="50" x2="1200" y2="50" stroke="#333" stroke-width="1"/>
+      
+      <!-- Target note indicators (pre-set) -->
+      <g transform="translate(220, 35)">
+        <rect x="-15" y="0" width="30" height="30" rx="3" fill="#ff6b6b" opacity="0.3" stroke="#ff6b6b" stroke-width="1"/>
+        <text x="0" y="20" text-anchor="middle" fill="#ff6b6b" font-family="monospace" font-size="10">K</text>
+      </g>
+      <g transform="translate(380, 35)">
+        <rect x="-15" y="0" width="30" height="30" rx="3" fill="#ffd93d" opacity="0.3" stroke="#ffd93d" stroke-width="1"/>
+        <text x="0" y="20" text-anchor="middle" fill="#ffd93d" font-family="monospace" font-size="10">S</text>
+      </g>
+      <g transform="translate(300, 35)">
+        <rect x="-10" y="5" width="20" height="20" rx="2" fill="#6bcb77" opacity="0.2" stroke="#6bcb77" stroke-width="1"/>
+        <text x="0" y="20" text-anchor="middle" fill="#6bcb77" font-family="monospace" font-size="8">H</text>
+      </g>
+      <g transform="translate(460, 35)">
+        <rect x="-10" y="5" width="20" height="20" rx="2" fill="#6bcb77" opacity="0.2" stroke="#6bcb77" stroke-width="1"/>
+        <text x="0" y="20" text-anchor="middle" fill="#6bcb77" font-family="monospace" font-size="8">H</text>
+      </g>
+      <g transform="translate(540, 35)">
+        <rect x="-15" y="0" width="30" height="30" rx="3" fill="#ff6b6b" opacity="0.3" stroke="#ff6b6b" stroke-width="1"/>
+        <text x="0" y="20" text-anchor="middle" fill="#ff6b6b" font-family="monospace" font-size="10">K</text>
+      </g>
+      <g transform="translate(700, 35)">
+        <rect x="-15" y="0" width="30" height="30" rx="3" fill="#ffd93d" opacity="0.3" stroke="#ffd93d" stroke-width="1"/>
+        <text x="0" y="20" text-anchor="middle" fill="#ffd93d" font-family="monospace" font-size="10">S</text>
+      </g>
+      
+      <!-- Subdivisions -->
+      <text x="220" y="75" text-anchor="middle" fill="#666" font-family="monospace" font-size="8">1</text>
+      <text x="260" y="75" text-anchor="middle" fill="#333" font-family="monospace" font-size="7">e</text>
+      <text x="300" y="75" text-anchor="middle" fill="#333" font-family="monospace" font-size="7">&amp;</text>
+      <text x="340" y="75" text-anchor="middle" fill="#333" font-family="monospace" font-size="7">a</text>
+      <text x="380" y="75" text-anchor="middle" fill="#666" font-family="monospace" font-size="8">2</text>
+      <text x="540" y="75" text-anchor="middle" fill="#666" font-family="monospace" font-size="8">3</text>
+      <text x="700" y="75" text-anchor="middle" fill="#666" font-family="monospace" font-size="8">4</text>
+    </g>
+    
+    <!-- LAYER 3: TIMING IS A WAVE (bottom) -->
+    <g transform="translate(20, 220)">
+      <rect width="1260" height="90" rx="4" fill="#0a0a0f" stroke="#1a1a1a"/>
+      <text x="10" y="18" fill="#e0e0e0" font-family="monospace" font-size="10" font-weight="bold">TIMING IS A WAVE</text>
+      
+      <!-- Reference wave (audio onsets from track) -->
+      <path d="M 60 55 Q 140 30, 220 55 Q 300 80, 380 55 Q 460 30, 540 55 Q 620 80, 700 55 Q 780 30, 860 55 Q 940 80, 1020 55 Q 1100 30, 1180 55" 
+            fill="none" stroke="#00d4ff" stroke-width="2" opacity="0.5"/>
+      
+      <!-- Player wave (MIDI input) -->
+      <path d="M 60 55 Q 140 28, 222 57 Q 300 82, 378 53 Q 460 28, 542 58 Q 620 78, 698 52 Q 780 32, 862 57 Q 940 78, 1018 53" 
+            fill="none" stroke="#ff9500" stroke-width="2.5" opacity="0.8"/>
+      
+      <!-- Hit point markers (where player actually hit) -->
+      <circle cx="222" cy="57" r="6" fill="#ff6b6b" filter="url(#glow)"/>
+      <circle cx="378" cy="53" r="6" fill="#ffd93d" filter="url(#glow)"/>
+      <circle cx="542" cy="58" r="6" fill="#6bcb77" filter="url(#glow)"/>
+      <circle cx="698" cy="52" r="6" fill="#4d96ff" filter="url(#glow)"/>
+      <circle cx="862" cy="57" r="6" fill="#ff6b6b" filter="url(#glow)"/>
+      <circle cx="1018" cy="53" r="6" fill="#ffd93d" filter="url(#glow)"/>
+      
+      <!-- Reference markers (perfect timing) -->
+      <circle cx="220" cy="55" r="3" fill="#00d4ff" opacity="0.7"/>
+      <circle cx="380" cy="55" r="3" fill="#00d4ff" opacity="0.7"/>
+      <circle cx="540" cy="55" r="3" fill="#00d4ff" opacity="0.7"/>
+      <circle cx="700" cy="55" r="3" fill="#00d4ff" opacity="0.7"/>
+      <circle cx="860" cy="55" r="3" fill="#00d4ff" opacity="0.7"/>
+      <circle cx="1020" cy="55" r="3" fill="#00d4ff" opacity="0.7"/>
+      
+      <!-- Legend -->
+      <line x1="1100" y1="20" x2="1130" y2="20" stroke="#00d4ff" stroke-width="2" opacity="0.5"/>
+      <text x="1135" y="24" fill="#00d4ff" font-family="monospace" font-size="7">reference</text>
+      <line x1="1100" y1="32" x2="1130" y2="32" stroke="#ff9500" stroke-width="2"/>
+      <text x="1135" y="36" fill="#ff9500" font-family="monospace" font-size="7">player</text>
+    </g>
+  </g>
+  
+  
+  <!-- ==================== ROW 3: COMPONENT BREAKDOWN ==================== -->
+  <g transform="translate(50, 590)">
+    <rect width="1300" height="200" rx="8" fill="#0a0a10" stroke="#00d4ff" stroke-width="1" stroke-dasharray="5,5"/>
+    <text x="650" y="25" text-anchor="middle" fill="#00d4ff" font-family="monospace" font-size="12" font-weight="bold">
+      COMPONENT ARCHITECTURE
+    </text>
+    
+    <!-- Component boxes -->
+    <g transform="translate(30, 50)">
+      <!-- Sync Circles -->
+      <rect width="150" height="60" rx="4" fill="#1a1a2a" stroke="#ff6b6b"/>
+      <text x="75" y="25" text-anchor="middle" fill="#ff6b6b" font-family="monospace" font-size="10">SyncCircles</text>
+      <text x="75" y="45" text-anchor="middle" fill="#444" font-family="monospace" font-size="8">4 phase-locked</text>
+    </g>
+    
+    <g transform="translate(200, 50)">
+      <!-- Beat Circles -->
+      <rect width="150" height="60" rx="4" fill="#1a1a2a" stroke="#ffd93d"/>
+      <text x="75" y="25" text-anchor="middle" fill="#ffd93d" font-family="monospace" font-size="10">BeatCircles[4]</text>
+      <text x="75" y="45" text-anchor="middle" fill="#444" font-family="monospace" font-size="8">per-beat + fade</text>
+    </g>
+    
+    <g transform="translate(370, 50)">
+      <!-- Histograms -->
+      <rect width="150" height="60" rx="4" fill="#1a1a2a" stroke="#6bcb77"/>
+      <text x="75" y="25" text-anchor="middle" fill="#6bcb77" font-family="monospace" font-size="10">Histograms[4]</text>
+      <text x="75" y="45" text-anchor="middle" fill="#444" font-family="monospace" font-size="8">deviation dist</text>
+    </g>
+    
+    <g transform="translate(540, 50)">
+      <!-- Aggregate -->
+      <rect width="150" height="60" rx="4" fill="#1a1a2a" stroke="#4d96ff"/>
+      <text x="75" y="25" text-anchor="middle" fill="#4d96ff" font-family="monospace" font-size="10">AggregateHeat</text>
+      <text x="75" y="45" text-anchor="middle" fill="#444" font-family="monospace" font-size="8">combined view</text>
+    </g>
+    
+    <!-- Wave Panel (unified) -->
+    <g transform="translate(730, 35)">
+      <rect width="250" height="90" rx="4" fill="#1a2a1a" stroke="#00ff88" stroke-width="2"/>
+      <text x="125" y="25" text-anchor="middle" fill="#00ff88" font-family="monospace" font-size="11" font-weight="bold">WavePanel</text>
+      <text x="125" y="45" text-anchor="middle" fill="#666" font-family="monospace" font-size="9">unified scroll container</text>
+      
+      <!-- Sub-layers -->
+      <rect x="20" y="55" width="60" height="25" rx="2" fill="#0a0a0f" stroke="#ff9500"/>
+      <text x="50" y="72" text-anchor="middle" fill="#ff9500" font-family="monospace" font-size="7">feedback</text>
+      
+      <rect x="95" y="55" width="60" height="25" rx="2" fill="#0a0a0f" stroke="#00d4ff"/>
+      <text x="125" y="72" text-anchor="middle" fill="#00d4ff" font-family="monospace" font-size="7">transcrip</text>
+      
+      <rect x="170" y="55" width="60" height="25" rx="2" fill="#0a0a0f" stroke="#e0e0e0"/>
+      <text x="200" y="72" text-anchor="middle" fill="#e0e0e0" font-family="monospace" font-size="7">wave</text>
+    </g>
+    
+    <!-- Timing Analyzer -->
+    <g transform="translate(1020, 35)">
+      <rect width="250" height="90" rx="4" fill="#2a1a1a" stroke="#ff6b6b" stroke-width="2"/>
+      <text x="125" y="25" text-anchor="middle" fill="#ff6b6b" font-family="monospace" font-size="11" font-weight="bold">TimingAnalyzer</text>
+      <text x="125" y="45" text-anchor="middle" fill="#666" font-family="monospace" font-size="9">core analysis engine</text>
+      
+      <text x="20" y="65" fill="#444" font-family="monospace" font-size="7">IN: MIDI, Audio onsets</text>
+      <text x="20" y="78" fill="#444" font-family="monospace" font-size="7">OUT: HitEvents{beat, deviation}</text>
+      <text x="20" y="91" fill="#444" font-family="monospace" font-size="7">REF: Tempo clock, Transcription</text>
+    </g>
+    
+    <!-- Arrows showing data flow -->
+    <path d="M 1020 80 L 980 80" stroke="#ff6b6b" stroke-width="1.5" marker-end="url(#arrow)"/>
+    <path d="M 855 125 L 855 145 L 150 145 L 150 115" stroke="#00ff88" stroke-width="1" stroke-dasharray="3,3"/>
+    <path d="M 855 125 L 855 145 L 350 145 L 350 115" stroke="#00ff88" stroke-width="1" stroke-dasharray="3,3"/>
+    <path d="M 855 125 L 855 145 L 520 145 L 520 115" stroke="#00ff88" stroke-width="1" stroke-dasharray="3,3"/>
+    
+    <!-- Count -->
+    <text x="650" y="185" text-anchor="middle" fill="#666" font-family="monospace" font-size="10">
+      8 visual components + 1 analyzer = 9 total objects
+    </text>
+  </g>
+  
+  
+  <!-- ==================== FOOTER: SCROLL SYNC ==================== -->
+  <g transform="translate(50, 810)">
+    <rect width="1300" height="80" rx="8" fill="#0f0f14" stroke="#00ff88" stroke-dasharray="3,3"/>
+    <text x="15" y="25" fill="#00ff88" font-family="monospace" font-size="10">SCROLL_SYNC (shared state)</text>
+    
+    <text x="50" y="55" fill="#666" font-family="monospace" font-size="9">bpm: 120</text>
+    <text x="150" y="55" fill="#666" font-family="monospace" font-size="9">current_beat: 4.75</text>
+    <text x="320" y="55" fill="#666" font-family="monospace" font-size="9">pixels_per_beat: 160</text>
+    <text x="520" y="55" fill="#666" font-family="monospace" font-size="9">scroll_offset: 760px</text>
+    
+    <text x="750" y="55" fill="#444" font-family="monospace" font-size="9">
+      beat_to_x(beat) → widget_width - ((beat - current_beat) * pixels_per_beat)
+    </text>
+    
+    <!-- Connected widgets indicator -->
+    <text x="1100" y="45" fill="#333" font-family="monospace" font-size="8">subscribed:</text>
+    <text x="1100" y="60" fill="#00ff88" font-family="monospace" font-size="8">SyncCircles, WavePanel</text>
+  </g>
+  
+  
+  <!-- ==================== LEGEND ==================== -->
+  <g transform="translate(50, 910)">
+    <rect width="1300" height="70" rx="8" fill="#1a1a1a" stroke="#2a2a2a"/>
+    <text x="15" y="22" fill="#00d4ff" font-family="monospace" font-size="10">LEGEND</text>
+    
+    <circle cx="100" cy="50" r="6" fill="#ff6b6b"/>
+    <text x="115" y="54" fill="#666" font-family="monospace" font-size="9">Beat 1</text>
+    
+    <circle cx="200" cy="50" r="6" fill="#ffd93d"/>
+    <text x="215" y="54" fill="#666" font-family="monospace" font-size="9">Beat 2</text>
+    
+    <circle cx="300" cy="50" r="6" fill="#6bcb77"/>
+    <text x="315" y="54" fill="#666" font-family="monospace" font-size="9">Beat 3</text>
+    
+    <circle cx="400" cy="50" r="6" fill="#4d96ff"/>
+    <text x="415" y="54" fill="#666" font-family="monospace" font-size="9">Beat 4</text>
+    
+    <line x1="500" y1="50" x2="540" y2="50" stroke="#00d4ff" stroke-width="2" opacity="0.5"/>
+    <text x="550" y="54" fill="#666" font-family="monospace" font-size="9">Reference (audio onsets)</text>
+    
+    <line x1="720" y1="50" x2="760" y2="50" stroke="#ff9500" stroke-width="2"/>
+    <text x="770" y="54" fill="#666" font-family="monospace" font-size="9">Player (MIDI input)</text>
+    
+    <line x1="920" y1="50" x2="960" y2="50" stroke="#00ff88" stroke-width="2"/>
+    <text x="970" y="54" fill="#666" font-family="monospace" font-size="9">Perfect timing axis</text>
+    
+    <rect x="1100" y="42" width="20" height="15" rx="2" fill="#ff6b6b" opacity="0.3" stroke="#ff6b6b"/>
+    <text x="1130" y="54" fill="#666" font-family="monospace" font-size="9">Target note</text>
+  </g>
+  
+</svg>

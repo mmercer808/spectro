@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MIDI Sequencer - Final Design</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #1a1a1a;
+            color: #e0e0e0;
+            padding: 20px;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #00d4ff;
+            font-weight: 300;
+            letter-spacing: 2px;
+        }
+        
+        .mockup-container {
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+            max-width: 1800px;
+            margin: 0 auto;
+        }
+        
+        .mockup {
+            background: #2a2a2a;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid #3a3a3a;
+        }
+        
+        .mockup-title {
+            background: #1a1a1a;
+            padding: 15px 20px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #00d4ff;
+            border-bottom: 1px solid #3a3a3a;
+        }
+        
+        /* Sequencer */
+        .sequencer {
+            display: flex;
+            flex-direction: column;
+            height: 650px;
+        }
+        
+        .sequencer .transport {
+            background: linear-gradient(180deg, #1e1e1e 0%, #161616 100%);
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border-bottom: 1px solid #3a3a3a;
+        }
+        
+        .sequencer .transport-controls {
+            display: flex;
+            gap: 12px;
+            padding: 8px 12px;
+            background: #0a0a0a;
+            border: 1px solid #3a3a3a;
+            border-radius: 6px;
+        }
+        
+        .sequencer .transport-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #2a2a2a;
+            border: 1px solid #4a4a4a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .sequencer .transport-btn:hover {
+            background: #3a3a3a;
+            border-color: #00d4ff;
+        }
+        
+        .sequencer .transport-btn.play {
+            background: #00d4ff;
+            border-color: #00d4ff;
+        }
+        
+        .sequencer .timecode {
+            font-family: 'Courier New', monospace;
+            font-size: 18px;
+            color: #00d4ff;
+            margin-left: auto;
+            padding: 8px 16px;
+            background: #1a1a1a;
+            border-radius: 4px;
+        }
+        
+        .sequencer .main-content {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+        
+        .sequencer .instrument-panel {
+            width: 140px;
+            background: #1e1e1e;
+            border-right: 1px solid #3a3a3a;
+            padding-top: 45px;
+        }
+        
+        .sequencer .instrument-row {
+            height: 40px;
+            display: flex;
+            align-items: center;
+            padding: 0 12px;
+            border-bottom: 1px solid #2a2a2a;
+            gap: 10px;
+        }
+        
+        .sequencer .instrument-color-bar {
+            width: 4px;
+            height: 24px;
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+        
+        .sequencer .instrument-name {
+            font-size: 13px;
+            font-weight: 500;
+            flex: 1;
+        }
+        
+        .sequencer .piano-key-indicator {
+            width: 16px;
+            height: 16px;
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+        
+        .sequencer .piano-key-indicator.white {
+            background: #e0e0e0;
+            border: 1px solid #999;
+        }
+        
+        .sequencer .piano-key-indicator.black {
+            background: #1a1a1a;
+            border: 1px solid #4a4a4a;
+        }
+        
+        .sequencer .sequencer-area {
+            flex: 1;
+            position: relative;
+            overflow-x: auto;
+        }
+        
+        .sequencer .timeline {
+            height: 45px;
+            background: #1e1e1e;
+            border-bottom: 1px solid #3a3a3a;
+            display: flex;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        .sequencer .beat-marker {
+            flex: 1;
+            min-width: 60px;
+            border-right: 1px solid #2a2a2a;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            color: #666;
+            position: relative;
+        }
+        
+        .sequencer .beat-marker:nth-child(4n+1) {
+            border-right-color: #4a4a4a;
+            color: #999;
+        }
+        
+        .sequencer .beat-number {
+            margin-bottom: 4px;
+        }
+        
+        .sequencer .ruler-ticks {
+            display: flex;
+            width: 100%;
+            height: 8px;
+            position: relative;
+        }
+        
+        .sequencer .ruler-tick {
+            flex: 1;
+            border-left: 1px solid #3a3a3a;
+            height: 4px;
+        }
+        
+        .sequencer .ruler-tick.major {
+            height: 8px;
+            border-left-color: #5a5a5a;
+        }
+        
+        .sequencer .beat-marker:nth-child(4n+1) .ruler-tick.major {
+            border-left-color: #7a7a7a;
+        }
+        
+        .sequencer .piano-roll {
+            display: flex;
+            position: relative;
+        }
+        
+        .sequencer .piano-roll-row {
+            height: 40px;
+            display: flex;
+            border-bottom: 1px solid #2a2a2a;
+            position: relative;
+        }
+        
+        .sequencer .piano-roll-cell {
+            flex: 1;
+            min-width: 60px;
+            border-right: 1px solid #282828;
+            position: relative;
+        }
+        
+        .sequencer .piano-roll-cell:nth-child(4n+1) {
+            border-right-color: #3a3a3a;
+        }
+        
+        .sequencer .note-block {
+            position: absolute;
+            height: 36px;
+            top: 2px;
+            border-radius: 3px;
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+            background: linear-gradient(135deg, #4a4a4a 0%, #2a2a2a 100%);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .sequencer .note-block.kick {
+            border: 2px solid #ff4b2b;
+        }
+        
+        .sequencer .note-block.snare {
+            border: 2px solid #38ef7d;
+        }
+        
+        .sequencer .note-block.hihat {
+            border: 2px solid #00f2fe;
+        }
+        
+        .sequencer .note-block.clap {
+            border: 2px solid #fee140;
+        }
+        
+        .sequencer .note-block.bass {
+            border: 2px solid #4a00e0;
+        }
+        
+        .sequencer .note-block.lead {
+            border: 2px solid #f5576c;
+        }
+        
+        .sequencer .waveform {
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 30"><path d="M0,15 Q10,5 20,15 T40,15 T60,15 T80,15 T100,15" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2"/></svg>');
+            background-size: 100% 100%;
+            opacity: 0.6;
+        }
+        
+        .sequencer .playhead {
+            position: absolute;
+            top: 45px;
+            bottom: 0;
+            width: 2px;
+            background: #ff3366;
+            left: 180px;
+            z-index: 5;
+            box-shadow: 0 0 10px rgba(255, 51, 102, 0.5);
+        }
+        
+        .sequencer .playhead::before {
+            content: '';
+            position: absolute;
+            top: -45px;
+            left: -6px;
+            width: 0;
+            height: 0;
+            border-left: 7px solid transparent;
+            border-right: 7px solid transparent;
+            border-top: 10px solid #ff3366;
+        }
+        
+        /* Transport icons */
+        .icon-play::before { content: '▶'; color: white; font-size: 14px; }
+        .icon-stop::before { content: '■'; color: #999; font-size: 14px; }
+        .icon-record::before { content: '●'; color: #ef4444; font-size: 16px; }
+        .icon-loop::before { content: '⟲'; color: #999; font-size: 16px; }
+    </style>
+</head>
+<body>
+    <h1>MIDI SEQUENCER - FINAL DESIGN</h1>
+    
+    <div class="mockup-container">
+        <div class="mockup">
+            <div class="mockup-title">Grayscale gradient clips with colored borders + Timeline ruler + Bordered transport</div>
+            <div class="sequencer">
+                <div class="transport">
+                    <div class="transport-controls">
+                        <div class="transport-btn"><span class="icon-stop"></span></div>
+                        <div class="transport-btn play"><span class="icon-play"></span></div>
+                        <div class="transport-btn"><span class="icon-record"></span></div>
+                        <div class="transport-btn"><span class="icon-loop"></span></div>
+                    </div>
+                    <div class="timecode">00:02:14.320</div>
+                </div>
+                <div class="main-content">
+                    <div class="instrument-panel">
+                        <div class="instrument-row">
+                            <div class="instrument-color-bar" style="background: #ff4b2b;"></div>
+                            <div class="instrument-name">Kick</div>
+                            <div class="piano-key-indicator white"></div>
+                        </div>
+                        <div class="instrument-row">
+                            <div class="instrument-color-bar" style="background: #38ef7d;"></div>
+                            <div class="instrument-name">Snare</div>
+                            <div class="piano-key-indicator black"></div>
+                        </div>
+                        <div class="instrument-row">
+                            <div class="instrument-color-bar" style="background: #00f2fe;"></div>
+                            <div class="instrument-name">Hi-Hat</div>
+                            <div class="piano-key-indicator white"></div>
+                        </div>
+                        <div class="instrument-row">
+                            <div class="instrument-color-bar" style="background: #fee140;"></div>
+                            <div class="instrument-name">Clap</div>
+                            <div class="piano-key-indicator black"></div>
+                        </div>
+                        <div class="instrument-row">
+                            <div class="instrument-color-bar" style="background: #4a00e0;"></div>
+                            <div class="instrument-name">Bass</div>
+                            <div class="piano-key-indicator white"></div>
+                        </div>
+                        <div class="instrument-row">
+                            <div class="instrument-color-bar" style="background: #f5576c;"></div>
+                            <div class="instrument-name">Lead</div>
+                            <div class="piano-key-indicator white"></div>
+                        </div>
+                        <div class="instrument-row">
+                            <div class="instrument-color-bar" style="background: #00d4ff;"></div>
+                            <div class="instrument-name">Pad</div>
+                            <div class="piano-key-indicator black"></div>
+                        </div>
+                        <div class="instrument-row">
+                            <div class="instrument-color-bar" style="background: #f59e0b;"></div>
+                            <div class="instrument-name">FX</div>
+                            <div class="piano-key-indicator white"></div>
+                        </div>
+                        <div class="instrument-row">
+                            <div class="instrument-color-bar" style="background: #10b981;"></div>
+                            <div class="instrument-name">Perc 1</div>
+                            <div class="piano-key-indicator black"></div>
+                        </div>
+                        <div class="instrument-row">
+                            <div class="instrument-color-bar" style="background: #ec4899;"></div>
+                            <div class="instrument-name">Perc 2</div>
+                            <div class="piano-key-indicator white"></div>
+                        </div>
+                    </div>
+                    <div class="sequencer-area">
+                        <div class="timeline">
+                            <div class="beat-marker">
+                                <div class="beat-number">1</div>
+                                <div class="ruler-ticks">
+                                    <div class="ruler-tick major"></div>
+                                    <div class="ruler-tick"></div>
+                                    <div class="ruler-tick"></div>
+                                    <div class="ruler-tick"></div>
+                                </div>
+                            </div>
+                            <div class="beat-marker">
+                                <div class="beat-number">2</div>
+                                <div class="ruler-ticks">
+                                    <div class="ruler-tick major"></div>
+                                    <div class="ruler-tick"></div>
+                                    <div class="ruler-tick"></div>
+                                    <div class="ruler-tick"></div>
+                                </div>
+                            </div>
+                            <div class="beat-marker">
+                                <div class="beat-number">3</div>
+                                <div class="ruler-ticks">
+                                    <div class="ruler-tick major"></div>
+                                    <div class="ruler-tick"></div>
+                                    <div class="ruler-tick"></div>
+                                    <div class="ruler-tick"></div>
+                                </div>
+                            </div>
+                            <div class="beat-marker">
+                                <div class="beat-number">4</div>
+                                <div class="ruler-ticks">
+                                    <div class="ruler-tick major"></div>
+                                    <div class="ruler-tick"></div>
+                                    <div class="ruler-tick"></div>
+                                    <div class="ruler-tick"></div>
+                                </div>
+                            </div>
+                            <div class="beat-marker">
+                                <div class="beat-number">5</div>
+                                <div class="ruler-ticks">
+                                    <div class="ruler-tick major"></div>
+                                    <div class="ruler-tick"></div>
+                                    <div class="ruler-tick"></div>
+                                    <div class="ruler-tick"></div>
+                                </div>
+                            </div>
+                            <div class="beat-marker">
+                                <div class="beat-number">6</div>
+                                <div class="ruler-ticks">
+                                    <div class="ruler-tick major"></div>
+                                    <div class="ruler-tick"></div>
+                                    <div class="ruler-tick"></div>
+                                    <div class="ruler-tick"></div>
+                                </div>
+                            </div>
+                            <div class="beat-marker">
+                                <div class="beat-number">7</div>
+                                <div class="ruler-ticks">
+                                    <div class="ruler-tick major"></div>
+                                    <div class="ruler-tick"></div>
+                                    <div class="ruler-tick"></div>
+                                    <div class="ruler-tick"></div>
+                                </div>
+                            </div>
+                            <div class="beat-marker">
+                                <div class="beat-number">8</div>
+                                <div class="ruler-ticks">
+                                    <div class="ruler-tick major"></div>
+                                    <div class="ruler-tick"></div>
+                                    <div class="ruler-tick"></div>
+                                    <div class="ruler-tick"></div>
+                                </div>
+                            </div>
+                            <div class="beat-marker">
+                                <div class="beat-number">9</div>
+                                <div class="ruler-ticks">
+                                    <div class="ruler-tick major"></div>
+                                    <div class="ruler-tick"></div>
+                                    <div class="ruler-tick"></div>
+                                    <div class="ruler-tick"></div>
+                                </div>
+                            </div>
+                            <div class="beat-marker">
+                                <div class="beat-number">10</div>
+                                <div class="ruler-ticks">
+                                    <div class="ruler-tick major"></div>
+                                    <div class="ruler-tick"></div>
+                                    <div class="ruler-tick"></div>
+                                    <div class="ruler-tick"></div>
+                                </div>
+                            </div>
+                            <div class="beat-marker">
+                                <div class="beat-number">11</div>
+                                <div class="ruler-ticks">
+                                    <div class="ruler-tick major"></div>
+                                    <div class="ruler-tick"></div>
+                                    <div class="ruler-tick"></div>
+                                    <div class="ruler-tick"></div>
+                                </div>
+                            </div>
+                            <div class="beat-marker">
+                                <div class="beat-number">12</div>
+                                <div class="ruler-ticks">
+                                    <div class="ruler-tick major"></div>
+                                    <div class="ruler-tick"></div>
+                                    <div class="ruler-tick"></div>
+                                    <div class="ruler-tick"></div>
+                                </div>
+                            </div>
+                            <div class="beat-marker">
+                                <div class="beat-number">13</div>
+                                <div class="ruler-ticks">
+                                    <div class="ruler-tick major"></div>
+                                    <div class="ruler-tick"></div>
+                                    <div class="ruler-tick"></div>
+                                    <div class="ruler-tick"></div>
+                                </div>
+                            </div>
+                            <div class="beat-marker">
+                                <div class="beat-number">14</div>
+                                <div class="ruler-ticks">
+                                    <div class="ruler-tick major"></div>
+                                    <div class="ruler-tick"></div>
+                                    <div class="ruler-tick"></div>
+                                    <div class="ruler-tick"></div>
+                                </div>
+                            </div>
+                            <div class="beat-marker">
+                                <div class="beat-number">15</div>
+                                <div class="ruler-ticks">
+                                    <div class="ruler-tick major"></div>
+                                    <div class="ruler-tick"></div>
+                                    <div class="ruler-tick"></div>
+                                    <div class="ruler-tick"></div>
+                                </div>
+                            </div>
+                            <div class="beat-marker">
+                                <div class="beat-number">16</div>
+                                <div class="ruler-ticks">
+                                    <div class="ruler-tick major"></div>
+                                    <div class="ruler-tick"></div>
+                                    <div class="ruler-tick"></div>
+                                    <div class="ruler-tick"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="piano-roll">
+                            <div style="width: 100%;">
+                                <!-- Kick -->
+                                <div class="piano-roll-row">
+                                    <div class="piano-roll-cell">
+                                        <div class="note-block kick" style="left: 0; width: 55px;">
+                                            <div class="waveform"></div>
+                                        </div>
+                                    </div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell">
+                                        <div class="note-block kick" style="left: 0; width: 55px;">
+                                            <div class="waveform"></div>
+                                        </div>
+                                    </div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell">
+                                        <div class="note-block kick" style="left: 0; width: 55px;">
+                                            <div class="waveform"></div>
+                                        </div>
+                                    </div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell">
+                                        <div class="note-block kick" style="left: 0; width: 55px;">
+                                            <div class="waveform"></div>
+                                        </div>
+                                    </div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                </div>
+                                <!-- Snare -->
+                                <div class="piano-roll-row">
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell">
+                                        <div class="note-block snare" style="left: 0; width: 55px;">
+                                            <div class="waveform"></div>
+                                        </div>
+                                    </div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell">
+                                        <div class="note-block snare" style="left: 0; width: 55px;">
+                                            <div class="waveform"></div>
+                                        </div>
+                                    </div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                </div>
+                                <!-- Hi-Hat -->
+                                <div class="piano-roll-row">
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell">
+                                        <div class="note-block hihat" style="left: 0; width: 55px;">
+                                            <div class="waveform"></div>
+                                        </div>
+                                    </div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell">
+                                        <div class="note-block hihat" style="left: 0; width: 55px;">
+                                            <div class="waveform"></div>
+                                        </div>
+                                    </div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell">
+                                        <div class="note-block hihat" style="left: 0; width: 55px;">
+                                            <div class="waveform"></div>
+                                        </div>
+                                    </div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell">
+                                        <div class="note-block hihat" style="left: 0; width: 55px;">
+                                            <div class="waveform"></div>
+                                        </div>
+                                    </div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell">
+                                        <div class="note-block hihat" style="left: 0; width: 55px;">
+                                            <div class="waveform"></div>
+                                        </div>
+                                    </div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell">
+                                        <div class="note-block hihat" style="left: 0; width: 55px;">
+                                            <div class="waveform"></div>
+                                        </div>
+                                    </div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell">
+                                        <div class="note-block hihat" style="left: 0; width: 55px;">
+                                            <div class="waveform"></div>
+                                        </div>
+                                    </div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell">
+                                        <div class="note-block hihat" style="left: 0; width: 55px;">
+                                            <div class="waveform"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Clap -->
+                                <div class="piano-roll-row">
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell">
+                                        <div class="note-block clap" style="left: 0; width: 55px;">
+                                            <div class="waveform"></div>
+                                        </div>
+                                    </div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell">
+                                        <div class="note-block clap" style="left: 0; width: 55px;">
+                                            <div class="waveform"></div>
+                                        </div>
+                                    </div>
+                                    <div class="piano-roll-cell"></div>
+                                </div>
+                                <!-- Bass -->
+                                <div class="piano-roll-row">
+                                    <div class="piano-roll-cell">
+                                        <div class="note-block bass" style="left: 0; width: 115px;">
+                                            <div class="waveform"></div>
+                                        </div>
+                                    </div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell">
+                                        <div class="note-block bass" style="left: 0; width: 55px;">
+                                            <div class="waveform"></div>
+                                        </div>
+                                    </div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell">
+                                        <div class="note-block bass" style="left: 0; width: 175px;">
+                                            <div class="waveform"></div>
+                                        </div>
+                                    </div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                </div>
+                                <!-- Lead -->
+                                <div class="piano-roll-row">
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell">
+                                        <div class="note-block lead" style="left: 0; width: 115px;">
+                                            <div class="waveform"></div>
+                                        </div>
+                                    </div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell">
+                                        <div class="note-block lead" style="left: 0; width: 115px;">
+                                            <div class="waveform"></div>
+                                        </div>
+                                    </div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                </div>
+                                <!-- Empty rows -->
+                                <div class="piano-roll-row">
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                </div>
+                                <div class="piano-roll-row">
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                </div>
+                                <div class="piano-roll-row">
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                </div>
+                                <div class="piano-roll-row">
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                    <div class="piano-roll-cell"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="playhead"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

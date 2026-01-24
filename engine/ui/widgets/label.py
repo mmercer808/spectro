@@ -76,22 +76,27 @@ class Label(Widget):
             return
 
         rect = self._layout.rect
+        local_rect = Rect(0, 0, rect.w, rect.h)
         style = self.style
 
-        # Draw background if set
-        if style.background is not None:
-            ctx.draw_rect(rect, style.background)
+        ctx.push_offset(rect.x, rect.y)
+        try:
+            # Draw background if set
+            if style.background is not None:
+                ctx.draw_rect(local_rect, style.background)
 
-        # Draw text
-        content = self._layout.content_rect
-        ctx.draw_text_in_rect(
-            self._text,
-            content,
-            style.font_color,
-            font_size=style.font_size,
-            align=style.text_align,
-            valign="center",
-        )
+            # Draw text
+            content = self._layout.content_rect
+            ctx.draw_text_in_rect(
+                self._text,
+                content,
+                style.font_color,
+                font_size=style.font_size,
+                align=style.text_align,
+                valign="center",
+            )
+        finally:
+            ctx.pop_offset()
 
 
 class Heading(Label):
