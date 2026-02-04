@@ -1,0 +1,28 @@
+{
+  "name": "timeline_club",
+  "description": "Timeline layer: single source of playhead and length. Internal or audio-file (analyzed).",
+  "bounces": ["solver_club.json", "analysis_club.json", "dispatcher_club.json"],
+  "elements": [
+    {
+      "id": "timeline-spec",
+      "name": "Timeline (formal spec)",
+      "description": "Interface: playhead_samples, playhead_beats, length_beats, playing. Implementations: internal, audio file.",
+      "link": "../timeline_solver_dispatcher_spec.md#11-timeline",
+      "bounces": ["solver_club.json#solver-spec"]
+    },
+    {
+      "id": "internal-timeline",
+      "name": "Internal timeline",
+      "description": "BPM + loop; AudioRingBuffer advances playhead.",
+      "link": "../dispatcher_equation.md",
+      "bounces": ["solver_club.json#tempo-fixation"]
+    },
+    {
+      "id": "file-timeline",
+      "name": "Audio file timeline",
+      "description": "Over analyzed sample (e.g. heavenfalls.mp3); position and length from file.",
+      "link": "../timeline_solver_dispatcher_spec.md#3-over-an-analyzed-sample-eg-heavenfallsmmp3",
+      "bounces": ["analysis_club.json#analyzed-sample", "solver_club.json#length-from-file"]
+    }
+  ]
+}

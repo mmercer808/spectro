@@ -106,6 +106,7 @@ class TransportSnapshot:
     Immutable snapshot of transport state at a moment in time.
     
     This is captured at EXECUTION TIME and passed to callbacks.
+    Includes collection-solver quantities: beat_in_loop, bar_in_loop (when loop_length_beats > 0).
     """
     playing: bool
     beat: float
@@ -117,14 +118,29 @@ class TransportSnapshot:
     sample_rate: int
     playhead_samples: int
     time_seconds: float
+    # Collection solver: loop-aware (length, brlength, tempo)
+    loop_length_beats: float   # 0 = no loop
+    beat_in_loop: float       # beat % loop_length_beats when looping, else beat
+    bar_in_loop: int          # bar % bars_in_loop when looping, else bar
+    bars_in_loop: int         # loop_length_beats / beats_per_bar when looping, else 0
     
     @classmethod
     def capture(cls, sync: 'EventDispatcher') -> 'TransportSnapshot':
-        """Capture current state from sync controller."""
+        """Capture current state from sync controller (collection solver: length, brlength, tempo)."""
         beat = sync.playhead_beats
         beats_per_bar = sync._beats_per_bar
         bar = int(beat / beats_per_bar)
         beat_in_bar = int(beat % beats_per_bar)
+        loop_length = sync._loop_length_beats
+        
+        if loop_length > 0 and beats_per_bar > 0:
+            bars_in_loop = max(1, int(loop_length / beats_per_bar))
+            beat_in_loop = beat % loop_length
+            bar_in_loop = bar % bars_in_loop
+        else:
+            bars_in_loop = 0
+            beat_in_loop = beat
+            bar_in_loop = bar
         
         return cls(
             playing=sync._playing,
@@ -132,11 +148,15 @@ class TransportSnapshot:
             bar=bar,
             beat_in_bar=beat_in_bar,
             phase_in_beat=beat % 1.0,
-            phase_in_bar=(beat % beats_per_bar) / beats_per_bar,
+            phase_in_bar=(beat % beats_per_bar) / beats_per_bar if beats_per_bar else 0.0,
             bpm=sync._bpm,
             sample_rate=sync._sample_rate,
             playhead_samples=sync.playhead_samples,
-            time_seconds=sync.playhead_samples / sync._sample_rate
+            time_seconds=sync.playhead_samples / sync._sample_rate,
+            loop_length_beats=loop_length,
+            beat_in_loop=beat_in_loop,
+            bar_in_loop=bar_in_loop,
+            bars_in_loop=bars_in_loop,
         )
 
 
@@ -472,12 +492,21 @@ class AudioRingBuffer:
         self._sample_rate = sample_rate
     
     def samples_to_beats(self, samples: int) -> float:
+        """samples * tempo / (60 * sr) — collection solver."""
         seconds = samples / self._sample_rate
         return seconds * (self._bpm / 60.0)
     
     def beats_to_samples(self, beats: float) -> int:
+        """beats * (60 * sr) / tempo — collection solver."""
         seconds = beats / (self._bpm / 60.0)
         return int(seconds * self._sample_rate)
+    
+    @property
+    def samples_per_beat(self) -> float:
+        """Collection solver: samples_per_beat = sr * 60 / tempo."""
+        if self._bpm <= 0:
+            return 0.0
+        return self._sample_rate * 60.0 / self._bpm
     
     def seek(self, sample: int):
         """Seek to sample position."""
@@ -631,11 +660,12 @@ class EventDispatcher:
         # Link buffers
         audio_buffer.sync_to_midi(midi_buffer)
         
-        # Transport state
+        # Transport state (collection solver: length, brlength, tempo)
         self._playing = False
         self._bpm = 120.0
         self._sample_rate = 44100
         self._beats_per_bar = 4
+        self._loop_length_beats = 0.0  # 0 = no loop; e.g. 16 for 4 bars at 4/4
         
         # Registered callbacks (NO parameters bound)
         self._callbacks: List[RegisteredCallback] = []
@@ -734,6 +764,39 @@ class EventDispatcher:
     def set_bpm(self, bpm: float):
         self._bpm = bpm
         self.audio_buffer.set_tempo(bpm)
+    
+    def set_loop_length(self, beats: float):
+        """Set loop/sequence length in beats (0 = no loop). Collection solver: length."""
+        self._loop_length_beats = max(0.0, beats)
+    
+    def set_beats_per_bar(self, n: int):
+        """Set bar length (beats per bar). Collection solver: brlength."""
+        self._beats_per_bar = max(1, n)
+    
+    # -------------------------------------------------------------------------
+    # Collection solver helpers (length, brlength, tempo, sr)
+    # -------------------------------------------------------------------------
+    
+    @property
+    def samples_per_beat(self) -> float:
+        """samples_per_beat = sr * 60 / tempo"""
+        if self._bpm <= 0:
+            return 0.0
+        return self._sample_rate * 60.0 / self._bpm
+    
+    @property
+    def beat_in_loop(self) -> float:
+        """playhead_beats % loop_length_beats when looping, else playhead_beats."""
+        if self._loop_length_beats <= 0:
+            return self.playhead_beats
+        return self.playhead_beats % self._loop_length_beats
+    
+    @property
+    def bars_in_loop(self) -> int:
+        """loop_length_beats / beats_per_bar when looping, else 0."""
+        if self._loop_length_beats <= 0 or self._beats_per_bar <= 0:
+            return 0
+        return max(1, int(self._loop_length_beats / self._beats_per_bar))
     
     # -------------------------------------------------------------------------
     # The Main Event Loop

@@ -1,0 +1,44 @@
+{
+  "name": "solver_club",
+  "description": "Collection solver: length, brlength, tempo, sr → beat_in_loop, bar_in_loop. Tempo is user-provided (proper fixation).",
+  "bounces": ["timeline_club.json", "dispatcher_club.json"],
+  "tempo_note": "Tempo (BPM) is provided by the user (proper fixation). Do not hardcode; accept from UI, file analysis, or config.",
+  "standard_of_record": "docs/sourcebook/tempo_fixation_standard.md — fixation of tempo on the beats.",
+  "elements": [
+    {
+      "id": "solver-spec",
+      "name": "Solver (formal spec)",
+      "description": "Parameters: length, brlength, tempo, sr. Outputs: beat_in_loop, bar_in_loop, samples_per_beat.",
+      "link": "../timeline_solver_dispatcher_spec.md#12-solver-collection-solver",
+      "bounces": ["timeline_club.json#timeline-spec", "dispatcher_club.json#dispatcher-spec"]
+    },
+    {
+      "id": "tempo-fixation",
+      "name": "Tempo fixation (user-provided)",
+      "description": "BPM comes from user or from analyzed sample; solver uses it. No default tempo in production.",
+      "link": "../timeline_solver_dispatcher_spec.md",
+      "bounces": ["analysis_club.json#tempo-analysis"]
+    },
+    {
+      "id": "sourcebook-tempo-standard",
+      "name": "Sourcebook: Tempo fixation and standard of record",
+      "description": "Standard of record for tempo on the beats; canonical equations; fixation and re-fixation.",
+      "link": "../sourcebook/tempo_fixation_standard.md",
+      "bounces": ["solver_club.json#solver-equations", "solver_club.json#tempo-fixation"]
+    },
+    {
+      "id": "solver-equations",
+      "name": "Solver equations (doc)",
+      "description": "samples_per_beat = sr*60/tempo; playhead_beats; beat_in_loop; bar_in_loop.",
+      "link": "../dispatcher_equation.md#collection-solver-length--bar_length--tempo",
+      "bounces": ["dispatcher_club.json#code-ref"]
+    },
+    {
+      "id": "length-from-file",
+      "name": "Length from file (analyzed)",
+      "description": "length_beats = duration_sec * (tempo/60); tempo from user fixation or analysis.",
+      "link": "../timeline_solver_dispatcher_spec.md#31-what-analyzed-means",
+      "bounces": ["analysis_club.json#duration"]
+    }
+  ]
+}

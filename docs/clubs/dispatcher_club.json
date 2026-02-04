@@ -1,0 +1,42 @@
+{
+  "name": "dispatcher_club",
+  "description": "Dispatcher and event manager: process_frame(dt), late-bound context, quad stream.",
+  "bounces": ["solver_club.json", "timeline_club.json", "analysis_club.json"],
+  "elements": [
+    {
+      "id": "dispatcher-spec",
+      "name": "Dispatcher (formal spec)",
+      "description": "Advance timeline, pop_ready(MidiRingBuffer), ExecutionContext, beat/bar callbacks.",
+      "link": "../timeline_solver_dispatcher_spec.md#13-dispatcher",
+      "bounces": ["solver_club.json#solver-spec", "events_club.json#event-manager-spec"]
+    },
+    {
+      "id": "event-manager-spec",
+      "name": "Event manager (formal spec)",
+      "description": "Registers and routes: MIDI→sequencer+audio, beat→playback, waveform, automation.",
+      "link": "../timeline_solver_dispatcher_spec.md#14-event-manager",
+      "bounces": ["dispatcher_club.json#dispatcher-spec"]
+    },
+    {
+      "id": "dispatcher-equation",
+      "name": "Dispatcher equation (graph)",
+      "description": "process_frame(dt) = advance → pop_ready → ExecutionContext → fire callbacks.",
+      "link": "../dispatcher_equation.md",
+      "bounces": ["solver_club.json#solver-equations"]
+    },
+    {
+      "id": "code-ref",
+      "name": "Code: EventDispatcher, TransportSnapshot",
+      "description": "engine/buffers_v2.py — set_loop_length, set_beats_per_bar, TransportSnapshot.capture.",
+      "link": "../../engine/buffers_v2.py",
+      "bounces": ["solver_club.json#solver-equations"]
+    },
+    {
+      "id": "quad-stream",
+      "name": "Quad stream over any sample",
+      "description": "Four streams: live MIDI, sequencer, waveform, +1; same timeline.",
+      "link": "../dispatcher_equation.md#quad-stream-over-any-sample",
+      "bounces": ["timeline_club.json#file-timeline", "analysis_club.json#heavenfalls"]
+    }
+  ]
+}

@@ -11,7 +11,6 @@ import time as time_module
 
 from .scene import Scene
 from .signal import SignalBridge, SIGNAL_DT, SIGNAL_TRANSPORT_CHANGED, SIGNAL_RESIZE
-from ..time.camera import TimeCamera, TimeCameraMode
 from ..time.transport import Transport, TransportState
 
 
@@ -27,6 +26,7 @@ class SceneManager:
     """Top-level coordinator for the SPECTRO engine."""
     
     def __init__(self, config: SceneManagerConfig = None):
+        from ..time.camera import TimeCamera, TimeCameraMode
         self.config = config or SceneManagerConfig()
         
         self.bridge = SignalBridge()
@@ -126,6 +126,7 @@ class SceneManager:
         self.time_camera.zoom_to_fit(min_beat, max_beat)
     
     def set_follow_mode(self, enabled: bool):
+        from ..time.camera import TimeCameraMode
         self.time_camera.mode = (
             TimeCameraMode.FOLLOW_PLAYHEAD if enabled 
             else TimeCameraMode.FREE_SCROLL
@@ -168,6 +169,7 @@ class SceneManager:
         view_data = data.get('view', {})
         self.time_camera.left_beat = view_data.get('left_beat', 0.0)
         self.time_camera.window_beats = view_data.get('window_beats', 16.0)
+        from ..time.camera import TimeCameraMode
         mode_name = view_data.get('mode', 'FOLLOW_PLAYHEAD')
         self.time_camera.mode = TimeCameraMode[mode_name]
     

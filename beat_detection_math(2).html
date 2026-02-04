@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beat Detection Mathematics</title>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        :root {
+            --bg: #1e1e1e;
+            --fg: #d4d4d4;
+            --accent: #569cd6;
+            --accent2: #4ec9b0;
+            --heading: #dcdcaa;
+            --code-bg: #2d2d2d;
+            --border: #404040;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg);
+            color: var(--fg);
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            line-height: 1.7;
+        }
+        
+        h1 {
+            color: var(--heading);
+            border-bottom: 2px solid var(--accent);
+            padding-bottom: 10px;
+        }
+        
+        h2 {
+            color: var(--accent);
+            margin-top: 50px;
+            border-left: 4px solid var(--accent);
+            padding-left: 15px;
+        }
+        
+        h3 {
+            color: var(--accent2);
+            margin-top: 30px;
+        }
+        
+        code {
+            background: var(--code-bg);
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Consolas', 'Courier New', monospace;
+        }
+        
+        pre {
+            background: var(--code-bg);
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border: 1px solid var(--border);
+        }
+        
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+        }
+        
+        th, td {
+            border: 1px solid var(--border);
+            padding: 10px 15px;
+            text-align: left;
+        }
+        
+        th {
+            background: var(--code-bg);
+            color: var(--accent);
+        }
+        
+        .equation-box {
+            background: var(--code-bg);
+            border: 1px solid var(--accent);
+            border-radius: 5px;
+            padding: 20px;
+            margin: 20px 0;
+            overflow-x: auto;
+        }
+        
+        .theorem {
+            background: #1a2a1a;
+            border-left: 4px solid #4ec9b0;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        
+        .proof {
+            background: #1a1a2a;
+            border-left: 4px solid #569cd6;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        
+        .note {
+            background: #2a2a1a;
+            border-left: 4px solid #dcdcaa;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        
+        a {
+            color: var(--accent);
+        }
+        
+        .toc {
+            background: var(--code-bg);
+            padding: 20px;
+            border-radius: 5px;
+            margin: 30px 0;
+        }
+        
+        .toc ul {
+            list-style: none;
+            padding-left: 20px;
+        }
+        
+        .toc > ul {
+            padding-left: 0;
+        }
+        
+        .signal-flow {
+            background: #0d1117;
+            border: 1px solid var(--accent);
+            padding: 20px;
+            border-radius: 5px;
+            font-family: monospace;
+            text-align: center;
+            margin: 20px 0;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Comprehensive Mathematical Foundations for Beat Detection via Harmonic Oscillator Matching</h1>
+
+<p><strong>Document Type:</strong> Technical Reference | <strong>Version:</strong> 1.0</p>
+
+<div class="toc">
+<h3>Table of Contents</h3>
+<ul>
+    <li><strong>Part I: Prerequisite Knowledge</strong>
+        <ul>
+            <li>Chapter 1: Fourier Transform and Time-Frequency Analysis</li>
+            <li>Chapter 2: Onset Detection Theory</li>
+            <li>Chapter 3: From Onset to Frequency</li>
+            <li>Chapter 4: Coupled Oscillator Theory</li>
+            <li>Chapter 5: Harmonic Series and the Mixer</li>
+            <li>Chapter 6: Adversarial Branch Detection</li>
+            <li>Chapter 7: The Complete Algorithm</li>
+        </ul>
+    </li>
+    <li><strong>Part II: Mathematical Proofs</strong></li>
+    <li><strong>Part III: Implementation Notes</strong></li>
+    <li><strong>Part IV: References</strong></li>
+</ul>
+</div>
+
+<hr>
+
+<h1>Part I: Prerequisite Knowledge</h1>
+
+<h2>Chapter 1: The Fourier Transform and Time-Frequency Analysis</h2>
+
+<h3>1.1 The Continuous Fourier Transform</h3>
+
+<p>The Fourier transform decomposes a signal into its constituent frequencies.</p>
+
+<div class="equation-box">
+<p><strong>Definition:</strong></p>
+$$\hat{f}(\xi) = \int_{-\infty}^{\infty} f(t) \, e^{-2\pi i \xi t} \, dt$$
+
+<p><strong>Inverse:</strong></p>
+$$f(t) = \int_{-\infty}^{\infty} \hat{f}(\xi) \, e^{2\pi i \xi t} \, d\xi$$
+</div>
+
+<p><strong>Key Identity (Euler's Formula):</strong></p>
+$$e^{i\theta} = \cos\theta + i\sin\theta$$
+
+<p>This means the Fourier transform projects the signal onto sinusoidal basis functions.</p>
+
+<h3>1.2 The Discrete Fourier Transform (DFT)</h3>
+
+<p>For sampled signals \(x[n]\) of length \(N\):</p>
+
+<div class="equation-box">
+$$X[k] = \sum_{n=0}^{N-1} x[n] \, e^{-2\pi i k n / N}$$
+</div>
+
+<p><strong>Frequency of bin \(k\):</strong></p>
+$$f_k = \frac{k \cdot f_s}{N}$$
+
+<p><strong>Frequency resolution:</strong></p>
+$$\Delta f = \frac{f_s}{N}$$
+
+<h3>1.3 The Uncertainty Principle</h3>
+
+<div class="theorem">
+<p><strong>Theorem (Heisenberg-Gabor):</strong> A signal cannot be simultaneously localized in both time and frequency.</p>
+$$\Delta t \cdot \Delta f \geq \frac{1}{4\pi}$$
+<p>where \(\Delta t\) and \(\Delta f\) are the standard deviations in time and frequency domains.</p>
+</div>
+
+<p><strong>Implication for STFT:</strong> Choosing window length \(N\) involves a tradeoff:</p>
+<ul>
+    <li>Large \(N\) → good frequency resolution, poor time resolution</li>
+    <li>Small \(N\) → poor frequency resolution, good time resolution</li>
+</ul>
+
+<h3>1.4 The Short-Time Fourier Transform (STFT)</h3>
+
+<p>To analyze how frequency content changes over time:</p>
+
+<div class="equation-box">
+$$X[m, k] = \sum_{n=0}^{N-1} x[n + mH] \cdot w[n] \cdot e^{-2\pi i k n / N}$$
+</div>
+
+<p><strong>Parameters:</strong></p>
+<ul>
+    <li>\(m\) = frame index (time)</li>
+    <li>\(k\) = frequency bin index</li>
+    <li>\(H\) = hop size (frame advance in samples)</li>
+    <li>\(w[n]\) = window function</li>
+</ul>
+
+<p><strong>The Hann Window:</strong></p>
+$$w[n] = \frac{1}{2}\left(1 - \cos\left(\frac{2\pi n}{N-1}\right)\right)$$
+
+<h3>1.5 The Spectrogram</h3>
+
+<p>The power spectrum at each frame:</p>
+
+<div class="equation-box">
+$$S[m, k] = |X[m, k]|^2 = \text{Re}(X[m,k])^2 + \text{Im}(X[m,k])^2$$
+</div>
+
+<hr>
+
+<h2>Chapter 2: Onset Detection Theory</h2>
+
+<h3>2.1 What is an Onset?</h3>
+
+<p>An onset is the beginning of a musical event—the moment when a new note, drum hit, or transient begins.</p>
+
+<div class="note">
+<p><strong>Reference:</strong> Bello, J.P., et al. (2005). "A Tutorial on Onset Detection in Music Signals." IEEE Transactions on Speech and Audio Processing, 13(5), pp. 1035–1047.</p>
+</div>
+
+<h3>2.2 Onset Detection Functions</h3>
+
+<table>
+    <tr><th>Method</th><th>Description</th><th>Best For</th></tr>
+    <tr><td>Spectral Flux</td><td>Energy increase across frequency bins</td><td>General purpose</td></tr>
+    <tr><td>High Frequency Content</td><td>Weighted by frequency</td><td>Percussive onsets</td></tr>
+    <tr><td>Complex Domain</td><td>Uses phase and magnitude</td><td>Pitched instruments</td></tr>
+    <tr><td>Phase Deviation</td><td>Measures phase irregularity</td><td>Soft onsets</td></tr>
+</table>
+
+<h3>2.3 Spectral Flux</h3>
+
+<div class="equation-box">
+<p><strong>Definition:</strong></p>
+$$O[m] = \sum_{k=0}^{N/2} H(S[m, k] - S[m-1, k])$$
+<p>where \(H(x) = \max(0, x)\) is the half-wave rectifier.</p>
+</div>
+
+<p><strong>Why half-wave rectification?</strong> We only care about energy <em>increases</em>, not decreases. A note ending doesn't constitute a new onset.</p>
+
+<p><strong>Expanded form:</strong></p>
+$$O[m] = \sum_{k=0}^{N/2} \begin{cases} S[m,k] - S[m-1,k] & \text{if } S[m,k] > S[m-1,k] \\ 0 & \text{otherwise} \end{cases}$$
+
+<h3>2.4 Converting Onset Frames to Time</h3>
+
+$$t_i = \frac{m_i \cdot H}{f_s}$$
+
+<hr>
+
+<h2>Chapter 3: From Onset to Frequency</h2>
+
+<h3>3.1 The Core Problem</h3>
+
+<p>Given a sequence of onset times \(\{t_1, t_2, \ldots, t_n\}\), estimate the underlying beat frequency \(f_0\).</p>
+
+<p>This is the <strong>onset-to-frequency conversion</strong> that links time-domain events to a periodic model.</p>
+
+<h3>3.2 Inter-Onset Interval (IOI)</h3>
+
+$$\Delta t_i = t_{i+1} - t_i$$
+
+<h3>3.3 Tempo Estimation</h3>
+
+<div class="equation-box">
+<p><strong>Mean IOI method:</strong></p>
+$$\bar{\Delta t} = \frac{1}{n-1} \sum_{i=1}^{n-1} \Delta t_i = \frac{t_n - t_1}{n-1}$$
+
+<p><strong>Tempo:</strong></p>
+$$f_0 = \frac{1}{\bar{\Delta t}} \quad \text{(beats per second)}$$
+$$\text{BPM} = 60 \cdot f_0$$
+</div>
+
+<h3>3.4 Spectral Centroid at Onsets</h3>
+
+<p>To characterize the frequency content at each onset:</p>
+
+<div class="equation-box">
+$$C_i = \frac{\sum_{k=0}^{N/2} f_k \cdot S[m_i, k]}{\sum_{k=0}^{N/2} S[m_i, k]}$$
+</div>
+
+<div class="theorem">
+<p><strong>Theorem:</strong> The spectral centroid is the power-weighted mean frequency.</p>
+</div>
+
+<div class="proof">
+<p><strong>Proof:</strong></p>
+<p>Define the normalized spectral distribution:</p>
+$$p_k = \frac{S[m_i, k]}{\sum_j S[m_i, j]}$$
+<p>This is a valid probability distribution: \(p_k \geq 0\) and \(\sum_k p_k = 1\).</p>
+<p>Then:</p>
+$$C_i = \sum_k f_k \cdot p_k = \mathbb{E}[f]$$
+<p>The centroid is the expected value of frequency. ∎</p>
+</div>
+
+<hr>
+
+<h2>Chapter 4: Coupled Oscillator Theory</h2>
+
+<h3>4.1 The Harmonic Oscillator</h3>
+
+<p>A simple harmonic oscillator has phase:</p>
+
+$$\theta(t) = 2\pi f_0 t + \phi$$
+
+<p><strong>Output signal:</strong></p>
+$$x(t) = A \cos(\theta(t)) = A \cos(2\pi f_0 t + \phi)$$
+
+<h3>4.2 The Kuramoto Model</h3>
+
+<p>The Kuramoto model describes synchronization in coupled oscillator populations.</p>
+
+<div class="equation-box">
+<p><strong>Definition:</strong> For \(N\) oscillators:</p>
+$$\frac{d\theta_k}{dt} = \omega_k + \frac{K}{N} \sum_{j=1}^{N} \sin(\theta_j - \theta_k)$$
+</div>
+
+<p>where:</p>
+<ul>
+    <li>\(\theta_k\) = phase of oscillator \(k\)</li>
+    <li>\(\omega_k\) = natural frequency of oscillator \(k\)</li>
+    <li>\(K\) = coupling strength</li>
+</ul>
+
+<div class="note">
+<p><strong>Key insight:</strong> When coupling \(K\) exceeds a critical value, oscillators spontaneously synchronize.</p>
+<p><strong>Reference:</strong> Kuramoto, Y. (1975). "Self-entrainment of a Population of Coupled Non-linear Oscillators."</p>
+</div>
+
+<h3>4.3 Adaptation for Beat Tracking</h3>
+
+<p>We modify the Kuramoto model to couple oscillators to an external onset signal:</p>
+
+<div class="equation-box">
+$$\frac{d\theta_k}{dt} = 2\pi k f_0 + \epsilon_k \cdot s(t) \cdot \sin(\theta_k - \theta_{target})$$
+</div>
+
+<p>where:</p>
+<ul>
+    <li>\(k\) = harmonic number</li>
+    <li>\(s(t)\) = onset signal (spikes at onset times)</li>
+    <li>\(\epsilon_k\) = coupling strength for harmonic \(k\)</li>
+</ul>
+
+<h3>4.4 Discrete-Time Update Equation</h3>
+
+<p>For real-time implementation:</p>
+
+<div class="equation-box">
+$$\theta_k[n+1] = \theta_k[n] + \frac{2\pi k f_0}{f_s} + \epsilon_k \cdot s[n] \cdot \sin(\theta_k[n] - \theta_{target})$$
+</div>
+
+<hr>
+
+<h2>Chapter 5: Harmonic Series and the Mixer</h2>
+
+<h3>5.1 Harmonic Series Definition</h3>
+
+$$f_k = k \cdot f_0, \quad k = 1, 2, 3, \ldots$$
+
+<p><strong>Oscillator bank output:</strong></p>
+$$M(t) = \sum_{k=1}^{K} a_k \cos(2\pi k f_0 t + \phi_k)$$
+
+<h3>5.2 The Product-to-Sum Identity</h3>
+
+<div class="equation-box">
+$$\cos(\alpha) \cos(\beta) = \frac{1}{2}\left[\cos(\alpha - \beta) + \cos(\alpha + \beta)\right]$$
+</div>
+
+<div class="proof">
+<p><strong>Proof:</strong></p>
+<p>Using Euler's formula:</p>
+$$\cos(\alpha) = \frac{e^{i\alpha} + e^{-i\alpha}}{2}, \quad \cos(\beta) = \frac{e^{i\beta} + e^{-i\beta}}{2}$$
+
+$$\cos(\alpha)\cos(\beta) = \frac{1}{4}\left(e^{i\alpha} + e^{-i\alpha}\right)\left(e^{i\beta} + e^{-i\beta}\right)$$
+
+$$= \frac{1}{4}\left(e^{i(\alpha+\beta)} + e^{i(\alpha-\beta)} + e^{-i(\alpha-\beta)} + e^{-i(\alpha+\beta)}\right)$$
+
+$$= \frac{1}{2}\left(\cos(\alpha+\beta) + \cos(\alpha-\beta)\right) \quad \blacksquare$$
+</div>
+
+<h3>5.3 Backbeat Detection Theorem</h3>
+
+<div class="theorem">
+<p><strong>Theorem:</strong> For backbeat patterns where \(t_b - t_a = T/2\), the fundamental phase difference is \(\pi\).</p>
+</div>
+
+<div class="proof">
+<p><strong>Proof:</strong></p>
+$$\phi_1^{(A)} - \phi_1^{(B)} = -2\pi f_0 t_a + 2\pi f_0 t_b = 2\pi f_0 (t_b - t_a)$$
+
+<p>For \(t_b - t_a = T/2 = 1/(2f_0)\):</p>
+
+$$\phi_1^{(A)} - \phi_1^{(B)} = 2\pi f_0 \cdot \frac{1}{2f_0} = \pi$$
+
+<p>Therefore:</p>
+$$\cos(\phi_1^{(A)} - \phi_1^{(B)}) = \cos(\pi) = -1 \quad \blacksquare$$
+</div>
+
+<hr>
+
+<h2>Chapter 6: Adversarial Branch Detection</h2>
+
+<h3>6.1 Agreement Function</h3>
+
+<div class="equation-box">
+$$A(t) = \cos(\theta_1^{(A)}(t) - \theta_1^{(B)}(t))$$
+</div>
+
+<p><strong>Interpretation:</strong></p>
+<ul>
+    <li>\(A = +1\): branches in phase (unison)</li>
+    <li>\(A = -1\): branches in antiphase (backbeat)</li>
+    <li>\(A = 0\): branches in quadrature</li>
+</ul>
+
+<h3>6.2 Confidence Score</h3>
+
+$$\text{conf}(t) = 1 - \frac{|A(t) - A_{target}|}{2}$$
+
+<hr>
+
+<h2>Chapter 7: The Complete Algorithm</h2>
+
+<h3>7.1 Signal Flow</h3>
+
+<div class="signal-flow">
+x[n] → STFT → S[m,k] → O[m] → {tᵢ} → (tₐ,tᵦ) → θₖ → Mₐ,Mᵦ → A(t) → conf(t)
+</div>
+
+<h3>7.2 Stage-by-Stage Equations</h3>
+
+<table>
+    <tr><th>Stage</th><th>Equation</th></tr>
+    <tr><td>Input</td><td>\(x[n], \quad t = n/f_s\)</td></tr>
+    <tr><td>STFT</td><td>\(X[m,k] = \sum_{n=0}^{N-1} x[n+mH] \cdot w[n] \cdot e^{-2\pi ikn/N}\)</td></tr>
+    <tr><td>Spectrogram</td><td>\(S[m,k] = |X[m,k]|^2\)</td></tr>
+    <tr><td>Onset Detection</td><td>\(O[m] = \sum_k \max(0, S[m,k] - S[m-1,k])\)</td></tr>
+    <tr><td>Onset Time</td><td>\(t_i = m_i H / f_s\)</td></tr>
+    <tr><td>Tempo</td><td>\(f_0 = (n-1)/(t_n - t_1)\)</td></tr>
+    <tr><td>Oscillator Phase</td><td>\(\theta_k(t) = 2\pi k f_0 t + \phi_k\)</td></tr>
+    <tr><td>Initial Phase</td><td>\(\phi_k = -2\pi k f_0 t_{onset}\)</td></tr>
+    <tr><td>Bank Output</td><td>\(M(t) = \sum_k a_k \cos(\theta_k(t))\)</td></tr>
+    <tr><td>Agreement</td><td>\(A(t) = \cos(\theta_1^{(A)} - \theta_1^{(B)})\)</td></tr>
+    <tr><td>Confidence</td><td>\(\text{conf}(t) = 1 - |A(t) - A_{target}|/2\)</td></tr>
+</table>
+
+<hr>
+
+<h1>Part II: Key Proofs</h1>
+
+<h2>Proof: Optimal Phase for Correlation</h2>
+
+<div class="theorem">
+<p><strong>Theorem:</strong> For fixed frequency \(f_0\), the phase \(\phi^*\) that maximizes correlation with onsets has a closed-form solution.</p>
+</div>
+
+<div class="proof">
+<p>The correlation:</p>
+$$R(\phi) = \sum_i w_i \cos(2\pi f_0 t_i + \phi)$$
+
+<p>Define:</p>
+$$A = \sum_i w_i \cos(2\pi f_0 t_i), \quad B = \sum_i w_i \sin(2\pi f_0 t_i)$$
+
+<p>Then:</p>
+$$R(\phi) = A\cos\phi - B\sin\phi = \sqrt{A^2 + B^2} \cos(\phi + \arctan(B/A))$$
+
+<p><strong>Optimal phase:</strong></p>
+$$\phi^* = -\arctan2(B, A)$$
+
+<p><strong>Maximum correlation:</strong></p>
+$$R_{max} = \sqrt{A^2 + B^2} \quad \blacksquare$$
+</div>
+
+<hr>
+
+<h1>Part III: Implementation Notes</h1>
+
+<h2>Recommended Parameters</h2>
+
+<table>
+    <tr><th>Parameter</th><th>Typical Value</th><th>Notes</th></tr>
+    <tr><td>Sample rate \(f_s\)</td><td>44100 Hz</td><td>Standard audio</td></tr>
+    <tr><td>FFT size \(N\)</td><td>2048</td><td>Good frequency resolution</td></tr>
+    <tr><td>Hop size \(H\)</td><td>512</td><td>\(N/4\) is common</td></tr>
+    <tr><td>Window</td><td>Hann</td><td>Reduces leakage</td></tr>
+    <tr><td>Harmonics \(K\)</td><td>8</td><td>Captures beat shape</td></tr>
+    <tr><td>Coupling \(\epsilon\)</td><td>0.1</td><td>Start small, tune empirically</td></tr>
+</table>
+
+<h2>Latency Analysis</h2>
+
+<p><strong>STFT latency:</strong> \((N-1)/f_s\)</p>
+
+<p>For \(N = 2048\), \(f_s = 44100\):</p>
+$$\text{latency} = \frac{2047}{44100} \approx 46 \text{ ms}$$
+
+<hr>
+
+<h1>Part IV: References</h1>
+
+<ol>
+    <li><strong>Bello, J.P., et al. (2005).</strong> "A Tutorial on Onset Detection in Music Signals." <em>IEEE Transactions on Speech and Audio Processing</em>, 13(5), pp. 1035–1047.</li>
+    <li><strong>Kuramoto, Y. (1984).</strong> <em>Chemical Oscillations, Waves, and Turbulence.</em> Springer.</li>
+    <li><strong>Acebrón, J.A., et al. (2005).</strong> "The Kuramoto Model: A Simple Paradigm for Synchronization Phenomena." <em>Reviews of Modern Physics</em>, 77(1), pp. 137–185.</li>
+    <li><strong>Scheirer, E. (1998).</strong> "Tempo and Beat Analysis of Acoustic Musical Signals." <em>Journal of the Acoustical Society of America</em>, 103(1), pp. 588–601.</li>
+    <li><strong>Dixon, S. (2006).</strong> "Onset Detection Revisited." <em>Proceedings of DAFx'06</em>.</li>
+    <li><strong>Klapuri, A., et al. (2006).</strong> "Analysis of the Meter of Acoustic Musical Signals." <em>IEEE Transactions on Audio, Speech, and Language Processing</em>, 14(1), pp. 342–355.</li>
+    <li><strong>Oppenheim, A.V. and Schafer, R.W. (2009).</strong> <em>Discrete-Time Signal Processing</em>, 3rd ed. Prentice Hall.</li>
+    <li><strong>Cohen, L. (1995).</strong> <em>Time-Frequency Analysis.</em> Prentice Hall.</li>
+    <li><strong>Gardner, F.M. (2005).</strong> <em>Phaselock Techniques</em>, 3rd ed. Wiley.</li>
+</ol>
+
+<hr>
+
+<h1>Appendix: Essential Trigonometric Identities</h1>
+
+<div class="equation-box">
+$$\cos(\alpha \pm \beta) = \cos\alpha\cos\beta \mp \sin\alpha\sin\beta$$
+
+$$\sin(\alpha \pm \beta) = \sin\alpha\cos\beta \pm \cos\alpha\sin\beta$$
+
+$$\cos\alpha\cos\beta = \frac{1}{2}[\cos(\alpha-\beta) + \cos(\alpha+\beta)]$$
+
+$$\sin\alpha\sin\beta = \frac{1}{2}[\cos(\alpha-\beta) - \cos(\alpha+\beta)]$$
+
+$$a\cos\theta + b\sin\theta = \sqrt{a^2+b^2}\cos(\theta - \arctan(b/a))$$
+
+$$e^{i\theta} = \cos\theta + i\sin\theta$$
+</div>
+
+<hr>
+<p style="text-align: center; color: #666;">Document compiled January 2026</p>
+
+</body>
+</html>

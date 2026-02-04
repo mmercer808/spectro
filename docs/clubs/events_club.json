@@ -1,0 +1,28 @@
+{
+  "name": "events_club",
+  "description": "Event manager and quad-stream wiring: callbacks, sequencer, audio, waveform.",
+  "bounces": ["dispatcher_club.json", "solver_club.json"],
+  "elements": [
+    {
+      "id": "event-manager-spec",
+      "name": "Event manager (formal spec)",
+      "description": "Wire MIDI→sequencer+audio; beat→get_events_in_range→audio; waveform; automation.",
+      "link": "../timeline_solver_dispatcher_spec.md#14-event-manager",
+      "bounces": ["dispatcher_club.json#dispatcher-spec"]
+    },
+    {
+      "id": "integration-flow",
+      "name": "Integration flow (diagram)",
+      "description": "INPUT → DISPATCH → ENTITY CREATION → RENDER → PLAYBACK.",
+      "link": "../../SPECTRO_DEMO_INTEGRATION_TODO.md",
+      "bounces": ["dispatcher_club.json#quad-stream"]
+    },
+    {
+      "id": "demo-callbacks",
+      "name": "Demo: _setup_callbacks",
+      "description": "spectro_demo_app.py wires dispatcher to sequencer + audio; tempo from transport (user fixation).",
+      "link": "../../spectro_demo_app.py",
+      "bounces": ["dispatcher_club.json#code-ref"]
+    }
+  ]
+}

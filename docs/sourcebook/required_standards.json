@@ -1,0 +1,74 @@
+{
+  "name": "required_standards",
+  "description": "Required standard documents for the app. Each is recorded for its entirety as the canonical source. Other improvising standards will be added here.",
+  "recorded_for_entirety_note": "Each listed file is the full record of its standard; the entire document is authoritative.",
+  "required": [
+    {
+      "path": "docs/sourcebook/tempo_fixation_standard.md",
+      "name": "Tempo fixation and standard of record for beats",
+      "description": "Fixation of tempo on the beats; BPM as single source for time↔beat; canonical equations; re-fixation.",
+      "recorded_for_entirety": true
+    },
+    {
+      "path": "docs/sourcebook/improvising_standards.md",
+      "name": "Improvising standards (umbrella)",
+      "description": "Scope of improvising standards; required documents; recorded for their entireties.",
+      "recorded_for_entirety": true
+    },
+    {
+      "path": "docs/timeline_solver_dispatcher_spec.md",
+      "name": "Timeline — Solver — Dispatcher — Event Manager (formal spec)",
+      "description": "Formal spec: Timeline, Solver, Dispatcher, Event Manager; over an analyzed sample.",
+      "recorded_for_entirety": true
+    },
+    {
+      "path": "docs/dispatcher_equation.md",
+      "name": "Dispatcher equation (graph)",
+      "description": "Collection solver; one-frame equation; quad stream over any sample; Mermaid graph.",
+      "recorded_for_entirety": true
+    },
+    {
+      "path": "docs/clubs/index.json",
+      "name": "Clubs index",
+      "description": "Index of clubs; sourcebook reference; external links.",
+      "recorded_for_entirety": true
+    },
+    {
+      "path": "docs/clubs/timeline_club.json",
+      "name": "Timeline club",
+      "description": "Timeline layer elements and bounces.",
+      "recorded_for_entirety": true
+    },
+    {
+      "path": "docs/clubs/solver_club.json",
+      "name": "Solver club",
+      "description": "Solver, tempo fixation, equations; standard of record link.",
+      "recorded_for_entirety": true
+    },
+    {
+      "path": "docs/clubs/dispatcher_club.json",
+      "name": "Dispatcher club",
+      "description": "Dispatcher, event manager, equation, code ref, quad stream.",
+      "recorded_for_entirety": true
+    },
+    {
+      "path": "docs/clubs/events_club.json",
+      "name": "Events club",
+      "description": "Event manager, integration flow, demo callbacks.",
+      "recorded_for_entirety": true
+    },
+    {
+      "path": "docs/clubs/analysis_club.json",
+      "name": "Analysis club",
+      "description": "Analyzed sample, duration, tempo, beat detection, heavenfalls; external links.",
+      "recorded_for_entirety": true
+    },
+    {
+      "path": "docs/MAIN_APP_WS_REQUIREMENT.md",
+      "name": "Main app: accepted WS server for saving project edits",
+      "description": "Main app must have an accepted WebSocket server to save additional edits for a project (whichever project). Dark scheduling; response text space (append-only).",
+      "recorded_for_entirety": true
+    }
+  ],
+  "other_improvising_standards": "Additional improvising standards may be added to the required array; each will be recorded for its entirety."
+}

@@ -1,0 +1,63 @@
+{
+  "name": "clubs_index",
+  "description": "Clubs for timeline–solver–dispatcher–event manager and analysis. Multiple elements bounce between clubs. Tempo: user-provided (proper fixation). Standard of record for tempo on the beats: docs/sourcebook/tempo_fixation_standard.md.",
+  "sourcebook": {
+    "tempo_fixation_standard": "docs/sourcebook/tempo_fixation_standard.md",
+    "description": "Fixation of tempo on the beats; standard of record for beat timing.",
+    "improvising_standards": "docs/sourcebook/improvising_standards.md",
+    "required_standards": "docs/sourcebook/required_standards.json",
+    "required_note": "Clubs and sourcebook pages listed in required_standards.json are required for the app; each is recorded for its entirety."
+  },
+  "clubs": [
+    {
+      "file": "timeline_club.json",
+      "name": "Timeline club",
+      "bounces_to": ["solver_club.json", "analysis_club.json", "dispatcher_club.json"]
+    },
+    {
+      "file": "solver_club.json",
+      "name": "Solver club",
+      "bounces_to": ["timeline_club.json", "dispatcher_club.json"],
+      "note": "Tempo is user-provided (proper fixation)."
+    },
+    {
+      "file": "dispatcher_club.json",
+      "name": "Dispatcher club",
+      "bounces_to": ["solver_club.json", "timeline_club.json", "analysis_club.json"]
+    },
+    {
+      "file": "events_club.json",
+      "name": "Events club",
+      "bounces_to": ["dispatcher_club.json", "solver_club.json"]
+    },
+    {
+      "file": "analysis_club.json",
+      "name": "Analysis club",
+      "bounces_to": ["timeline_club.json", "solver_club.json"]
+    }
+  ],
+  "vercel_app_spec": "docs/VERCEL_APP_TIMELINE_SPEC.md",
+  "vercel_app_note": "Continuous timeline; add object → mix channel when it matches; schedule sequence (start=now or 0.00); verses/blocks playable regardless; MIDI key changes; record piano; plugin/VST selected then.",
+  "external_links": [
+    {
+      "name": "librosa beat_track",
+      "url": "https://librosa.org/doc/latest/generated/librosa.beat.beat_track.html"
+    },
+    {
+      "name": "librosa beat docs",
+      "url": "https://librosa.org/doc/main/beat.html"
+    },
+    {
+      "name": "aubio",
+      "url": "https://aubio.readthedocs.io/en/latest/"
+    },
+    {
+      "name": "soundfile",
+      "url": "https://python-soundfile.readthedocs.io/"
+    },
+    {
+      "name": "pydub",
+      "url": "https://pydub.com/"
+    }
+  ]
+}

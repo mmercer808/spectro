@@ -1,0 +1,77 @@
+{
+  "name": "analysis_club",
+  "description": "Audio sample analysis: duration, tempo, beat grid. For running over heavenfalls.mp3 or any sample.",
+  "bounces": ["timeline_club.json", "solver_club.json"],
+  "elements": [
+    {
+      "id": "analyzed-sample",
+      "name": "Over an analyzed sample",
+      "description": "Load file → duration + sr; optional tempo/beat grid. Timeline from file.",
+      "link": "../timeline_solver_dispatcher_spec.md#3-over-an-analyzed-sample-eg-heavenfallsmmp3",
+      "bounces": ["timeline_club.json#file-timeline", "solver_club.json#length-from-file"]
+    },
+    {
+      "id": "duration",
+      "name": "Duration (required)",
+      "description": "duration_sec = num_samples / sr. length_beats = duration_sec * (tempo/60); tempo from user fixation.",
+      "link": "../timeline_solver_dispatcher_spec.md#31-what-analyzed-means",
+      "bounces": ["solver_club.json#length-from-file"]
+    },
+    {
+      "id": "tempo-analysis",
+      "name": "Tempo analysis (optional)",
+      "description": "User provides proper fixation on tempo. Optional: estimate BPM from onset/oscillator or librosa/aubio.",
+      "link": "../timeline_solver_dispatcher_spec.md#32-analysis-pipeline-conceptual",
+      "bounces": ["solver_club.json#tempo-fixation"]
+    },
+    {
+      "id": "beat-detection-math",
+      "name": "Beat detection (math, in-repo)",
+      "description": "Harmonic oscillator matching, onset strength, adversarial branches.",
+      "link": "../../math/beat_detection_oscillator_theory.md",
+      "bounces": ["analysis_club.json#tempo-analysis"]
+    },
+    {
+      "id": "librosa-beat",
+      "name": "librosa beat_track (external)",
+      "description": "Python: tempo, beats = librosa.beat.beat_track(y, sr). Optional tempo estimation.",
+      "link": "https://librosa.org/doc/latest/generated/librosa.beat.beat_track.html",
+      "bounces": ["analysis_club.json#tempo-analysis"]
+    },
+    {
+      "id": "librosa-beat-docs",
+      "name": "librosa Beat and tempo (docs)",
+      "description": "Beat tracking overview and time-varying tempo.",
+      "link": "https://librosa.org/doc/main/beat.html",
+      "bounces": ["analysis_club.json#librosa-beat"]
+    },
+    {
+      "id": "aubio",
+      "name": "aubio (external)",
+      "description": "Tempo/beat detection; CLI: aubio tempo file.wav. Python bindings.",
+      "link": "https://aubio.readthedocs.io/en/latest/",
+      "bounces": ["analysis_club.json#tempo-analysis"]
+    },
+    {
+      "id": "soundfile",
+      "name": "soundfile (external)",
+      "description": "Read/write WAV, FLAC, OGG (no MP3). PCM + sr for analysis.",
+      "link": "https://python-soundfile.readthedocs.io/",
+      "bounces": ["analysis_club.json#duration"]
+    },
+    {
+      "id": "pydub-mp3",
+      "name": "pydub MP3 (external)",
+      "description": "Load MP3: AudioSegment.from_mp3(path). Export to WAV for soundfile if needed.",
+      "link": "https://pydub.com/",
+      "bounces": ["analysis_club.json#duration", "analysis_club.json#heavenfalls"]
+    },
+    {
+      "id": "heavenfalls",
+      "name": "heavenfalls.mp3 (sample)",
+      "description": "Project sample for analyzed-file timeline. Load via pydub or decode to WAV; analyze duration; tempo from user fixation.",
+      "link": "../../heavenfalls.mp3",
+      "bounces": ["timeline_club.json#file-timeline", "analysis_club.json#pydub-mp3"]
+    }
+  ]
+}

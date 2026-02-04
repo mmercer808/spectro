@@ -48,7 +48,7 @@ class EngineApp(mglw.WindowConfig):
         # Layout manager
         self.layout = AreaLayout()
         self.areas: List[ViewportArea] = []
-         to follow 
+
         # Timing
         self.last_t = time.perf_counter()
         self.frame_id = 0

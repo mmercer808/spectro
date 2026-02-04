@@ -59,12 +59,22 @@ from engine.ui.widget import (
     Event, EventType, EventHandler, WidgetState,
 )
 from engine.ui.draw import DrawContext, DrawBatch, UIRenderer
+from engine.ui.renderer import SimpleUIRenderer
 from engine.ui.widgets import (
     Container, Spacer, Divider,
     Panel, TitleBar, FloatingPanel,
     Label, Heading, Caption,
     Button, IconButton, ToggleButton,
     Viewport3D,
+    # Sequencer widgets
+    TransportBarWidget,
+    SequencerGridWidget,
+    LaunchpadGridWidget,
+    WaveformWidget,
+    SequencerEvent,
+    SequencerLane,
+    CellListener,
+    SequencerController,
 )
 from engine.ui.widgets.container import Row, Column
 from engine.ui.window_manager import (
@@ -84,13 +94,22 @@ __all__ = [
     "Widget", "RootWidget", "LayoutResult",
     "Event", "EventType", "EventHandler", "WidgetState",
     # Draw
-    "DrawContext", "DrawBatch", "UIRenderer",
-    # Widgets
+    "DrawContext", "DrawBatch", "UIRenderer", "SimpleUIRenderer",
+    # Core Widgets
     "Container", "Row", "Column", "Spacer", "Divider",
     "Panel", "TitleBar", "FloatingPanel",
     "Label", "Heading", "Caption",
     "Button", "IconButton", "ToggleButton",
     "Viewport3D",
+    # Sequencer Widgets
+    "TransportBarWidget",
+    "SequencerGridWidget",
+    "LaunchpadGridWidget",
+    "WaveformWidget",
+    "SequencerEvent",
+    "SequencerLane",
+    "CellListener",
+    "SequencerController",
     # Window Manager
     "WindowManager",
     "DockNode", "DockLeaf", "DockSplit", "DockTabs",

@@ -15,10 +15,16 @@ The key architectural innovation is **pixel-perfect time synchronization** — m
 .venv\Scripts\activate  # Windows
 source .venv/bin/activate  # Unix
 
-# Run the main engine demo
+# SPECTRO display demo (main views, no audio) — run this first
+python demo/run_demo.py
+
+# Full SPECTRO demo (with audio, MIDI)
+python spectro_demo_app.py
+
+# Engine seed (3D viewports)
 python app_mglw.py
 
-# Run the UI system demo
+# UI system demo (panels, 3D viewport widget)
 python ui_demo.py
 
 # Run tests
