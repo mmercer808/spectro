@@ -1,3 +1,4 @@
+
 import pytest
 from engine.time.camera import TimeCamera, TimeCameraMode, TimeCameraConfig
 

@@ -3,9 +3,9 @@ Point Cloud System
 
 A PointCloud is a collection of instances that owns a contiguous range
 in a GPUBuffer. It's the mass-instance equivalent of EntityNode.
-
+9
 EntityNode: Single object with Transform + MeshRenderer
-PointCloud: Many instances sharing the same mesh, each with position/color/etc.
+PointCloud: Many instances s00haring the same mesh, each with position/color/etc.
 
 Key principles:
 1. PointCloud owns a range [start, start+count) in a GPUBuffer
